@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f6f8">
+  <meta name="description" content="Создавайте графику для мотоциклов: слои изображений, UV-развёртка и живой 3D-просмотр. Картинки обрабатываются на вашем устройстве.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'">
+  <title>Livery Studio — редактор графики</title>
+  <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./dist/app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="Livery Studio">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M7 10h7v18h19v7H7z"/><path d="m19 5 14 0-11 16h-8z"/></svg>
+      <span>LIVERY<span class="brand-light">STUDIO</span><small>МАСТЕРСКАЯ ГРАФИКИ</small></span>
+    </a>
+    <label class="model-field"><span>Мотоцикл / квадроцикл</span><select id="model-select" disabled aria-label="Выбрать модель"><option>Загрузка моделей…</option></select></label>
+    <span class="local-status"><i></i> Всё на вашем устройстве</span>
+    <div class="top-actions">
+      <button id="help-button" class="icon-button" title="Как пользоваться" aria-label="Как пользоваться">?</button>
+      <button id="project-save" class="quiet-button" disabled>Сохранить проект</button>
+      <button id="export-all" class="primary-button" disabled><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9m-4-4 4 4 4-4M4 13v4h12v-4"/></svg>Скачать набор <span>ZIP</span></button>
+    </div>
+  </header>
+
+  <main class="app-shell" aria-label="Редактор графики">
+    <section class="preview-panel panel" aria-label="3D-просмотр">
+      <div class="panel-heading"><div><span class="eyebrow">ЖИВОЙ ПРОСМОТР</span><h1>Ваша графика в 3D</h1></div><span class="badge dark" id="mesh-count">— деталей</span></div>
+      <div id="viewer" class="viewer"><div id="model-loader" class="model-loader"><span class="spinner"></span><strong>Собираем модель</strong><span id="load-progress">Загружаем детали…</span></div></div>
+      <div class="viewer-tools">
+        <button id="camera-reset" class="dark-button" title="Вернуть камеру">Общий вид</button>
+        <button id="part-focus" class="dark-button">К детали</button>
+        <label class="dark-toggle"><input type="checkbox" id="isolate-part"> Только деталь</label>
+      </div>
+      <div class="preview-caption"><span class="live-dot"></span><span>Изменения видны сразу</span><span class="mouse-help">Тяните — вращение · Колесо — масштаб</span></div>
+    </section>
+
+    <section class="uv-panel panel" aria-label="Редактор развёртки">
+      <div class="panel-heading"><div><span class="eyebrow">РАЗВЁРТКА</span><h2 id="part-heading">Выберите деталь</h2></div><div class="history-buttons"><button id="undo" class="icon-button" title="Отменить · Ctrl+Z" aria-label="Отменить" disabled>↶</button><button id="redo" class="icon-button" title="Повторить · Ctrl+Shift+Z" aria-label="Повторить" disabled>↷</button></div></div>
+      <div class="part-strip"><label><span class="sr-only">Редактируемая деталь</span><select id="part-select" disabled></select></label><span id="part-size" class="muted">—</span></div>
+      <div class="editor-toolbar">
+        <button id="add-images" class="add-button" disabled><span>＋</span> Добавить картинки</button>
+        <button id="crop-layer" class="tool-button" disabled title="Обрезать выбранную картинку">Обрезать</button>
+        <button id="duplicate-layer" class="tool-button" disabled title="Создать копию слоя">Копия</button>
+        <button id="delete-layer" class="icon-button" disabled title="Удалить выбранный слой" aria-label="Удалить слой"><svg viewBox="0 0 20 20"><path d="M4 5h12M8 5V3h4v2M6 5l1 12h6l1-12M9 8v6m2-6v6"/></svg></button>
+      </div>
+      <div id="uv-stage" class="uv-stage"><div class="uv-space"><canvas id="uv-canvas" width="1024" height="1024" tabindex="0" aria-label="UV-холст. Перетаскивайте картинки и углы рамки. Стрелки перемещают слой."></canvas></div><div id="empty-hint" class="empty-hint"><span class="hint-mark">＋</span><strong>Здесь начинается ваша графика</strong><span>Добавьте картинку или перетащите её сюда.<br>Контуры помогут расположить рисунок.</span></div></div>
+      <div class="canvas-footer"><label class="guide-toggle"><input type="checkbox" id="show-guide" checked> UV-подсказка</label><div class="zoom-controls"><button id="zoom-out" class="icon-button" aria-label="Уменьшить">−</button><button id="zoom-fit" class="zoom-value" title="Вписать развёртку">100%</button><button id="zoom-in" class="icon-button" aria-label="Увеличить">＋</button></div></div>
+      <div class="export-note"><span>UV-подсказка не попадает в текстуру</span><button id="export-part" class="text-button" disabled>Скачать эту деталь ↗</button></div>
+    </section>
+
+    <aside class="inspector panel" aria-label="Слои и настройки">
+      <div class="sidebar-heading"><h2>Слои</h2><span id="layer-count" class="badge">0</span></div>
+      <p class="small-note">Верхний слой перекрывает нижний</p>
+      <div id="layers-list" class="layers-list"><div class="no-layers">Добавьте первую картинку</div></div>
+      <div class="layer-order"><button id="layer-up" class="quiet-button" disabled>↑ Выше</button><button id="layer-down" class="quiet-button" disabled>↓ Ниже</button></div>
+      <section id="layer-properties" class="properties" hidden>
+        <label class="property-label">Имя слоя<input id="layer-name" type="text" maxlength="100" autocomplete="off"></label>
+        <label class="property-label"><span>Непрозрачность <output id="opacity-value">100%</output></span><input id="layer-opacity" type="range" min="0" max="100" value="100"></label>
+        <div class="property-grid"><label class="property-label">Ширина, %<input id="layer-width" type="number" min="1" max="1000" step="1"></label><label class="property-label">Поворот, °<input id="layer-angle" type="number" min="-360" max="360" step="1"></label></div>
+        <div class="property-grid"><label class="property-label">X, %<input id="layer-x" type="number" step="1"></label><label class="property-label">Y, %<input id="layer-y" type="number" step="1"></label></div>
+        <div class="flip-buttons"><button id="flip-x" class="quiet-button">↔ Отразить</button><button id="flip-y" class="quiet-button">↕ Отразить</button></div>
+      </section>
+      <section class="base-properties"><h3>Основа детали</h3><label class="color-row"><input id="base-color" type="color" value="#b8ed42" disabled><span id="color-value">#B8ED42</span><span class="muted">Цвет</span></label><label class="transparent-row"><input id="transparent-base" type="checkbox" disabled> Прозрачный фон PNG</label></section>
+      <section class="export-properties"><h3>Размер экспорта</h3><select id="export-size"><option value="original">Как исходная развёртка</option><option value="4096">4096 × 4096</option><option value="2048">2048 × 2048</option><option value="1024">1024 × 1024</option></select><p class="small-note">PNG для каждой детали, в одном ZIP</p></section>
+      <div class="sidebar-bottom"><button id="project-save-mobile" class="text-button mobile-project-save" disabled>Сохранить проект на компьютер</button><button id="project-open" class="text-button">Открыть проект с компьютера</button><button id="reset-part" class="text-button muted" disabled>Очистить эту деталь</button></div>
+    </aside>
+  </main>
+  <footer class="app-footer"><span id="app-status" role="status">Подготовка редактора…</span><span>Картинки остаются у вас. Регистрация не нужна.</span></footer>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <input id="image-input" class="file-input" type="file" accept="image/png,image/jpeg,image/webp,image/avif" multiple>
+  <input id="project-input" class="file-input" type="file" accept=".livery.json,.json,application/json">
+
+  <dialog id="crop-dialog" class="crop-dialog">
+    <div class="dialog-heading"><div><span class="eyebrow">ВЫБРАННЫЙ СЛОЙ</span><h2>Обрезать картинку</h2></div><button id="crop-close" class="icon-button" aria-label="Закрыть">×</button></div>
+    <p class="muted">Выделите нужную область. Рамку можно перемещать и менять за углы.</p>
+    <div class="crop-stage"><canvas id="crop-canvas" width="900" height="560" aria-label="Выделение области обрезки"></canvas></div>
+    <div class="dialog-footer"><button id="crop-new" class="quiet-button">Новое выделение</button><button id="crop-reset" class="quiet-button">Вся картинка</button><span id="crop-size" class="muted"></span><button id="crop-copy" class="quiet-button">Область новым слоем</button><button id="crop-apply" class="primary-button">Применить обрезку</button></div>
+  </dialog>
+  <dialog id="help-dialog" class="help-dialog"><div class="dialog-heading"><h2>От картинки до готовой графики</h2><button id="help-close" class="icon-button" aria-label="Закрыть">×</button></div><ol><li>Выберите мотоцикл и деталь. Все доступные mesh-детали видны в 3D.</li><li>Добавьте одну или несколько картинок — каждая станет отдельным слоем выбранной детали.</li><li>Тяните картинку по развёртке. Углы рамки меняют размер; Shift позволяет менять пропорции. Кружок над рамкой поворачивает слой.</li><li>Обрежьте ненужное, настройте прозрачность и порядок слоёв. UV-подсказку можно скрыть.</li><li>Скачайте деталь в PNG или весь набор в ZIP. Подсказки и рамки в экспорт не попадают.</li></ol><p>Ctrl+Z — отменить, Ctrl+Shift+Z — повторить. Стрелки двигают слой, Shift ускоряет. Проект можно сохранить файлом и открыть позже.</p><p class="muted">Изображения обрабатываются в вашем браузере. Детали с отметкой «только 2D» имеют маску, но в исходной папке нет mesh для их 3D-просмотра.</p></dialog>
+  <noscript>Для редактора необходим включённый JavaScript.</noscript>
+</body>
+</html>

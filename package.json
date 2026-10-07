@@ -1,0 +1,22 @@
+{
+  "name": "moto-livery-editor",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/serve.mjs",
+    "assets": "node scripts/import-assets.mjs",
+    "test": "node scripts/test-editor.mjs",
+    "validate:assets": "node scripts/validate-assets.mjs"
+  },
+  "dependencies": {
+    "fflate": "0.8.3",
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "gltf-validator": "2.0.0-dev.3.10",
+    "playwright": "1.63.0"
+  }
+}

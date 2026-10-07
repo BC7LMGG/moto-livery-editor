@@ -1,0 +1,954 @@
+{
+  "version": 1,
+  "defaultModel": "KWSKX250F",
+  "models": [
+    {
+      "id": "KWSKX250F",
+      "name": "Kawasaki KX250F",
+      "model": "assets/models/KWSKX250F/model.glb",
+      "parts": [
+        {
+          "id": "KWSKX250F_1119_Plastic",
+          "name": "Пластик",
+          "number": "1119",
+          "role": "Plastic",
+          "mask": "assets/models/KWSKX250F/KWSKX250F_1119_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#b8ed42"
+        },
+        {
+          "id": "KWSKX250F_1120_Seat",
+          "name": "Сиденье",
+          "number": "1120",
+          "role": "Seat",
+          "mask": "assets/models/KWSKX250F/KWSKX250F_1120_Seat_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#30343b"
+        },
+        {
+          "id": "KWSKX250F_1102_Swingarm",
+          "name": "Маятник",
+          "number": "1102",
+          "role": "Swingarm",
+          "mask": "assets/models/KWSKX250F/KWSKX250F_1102_Swingarm_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#666e7b"
+        },
+        {
+          "id": "KWSKX250F_1107_HandlebarPad",
+          "name": "Подушка руля",
+          "number": "1107",
+          "role": "HandlebarPad",
+          "mask": "assets/models/KWSKX250F/KWSKX250F_1107_HandlebarPad_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#20262e"
+        },
+        {
+          "id": "KWSKX250F_1110_HeadlightMask",
+          "name": "Маска фары",
+          "number": "1110",
+          "role": "HeadlightMask",
+          "mask": "assets/models/KWSKX250F/KWSKX250F_1110_HeadlightMask_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": false,
+          "color": "#b8ed42"
+        }
+      ]
+    },
+    {
+      "id": "BMWM1000RR",
+      "name": "BMW M 1000 RR",
+      "model": "assets/models/BMWM1000RR/model.glb",
+      "parts": [
+        {
+          "id": "BMWM1000RR_0616_Plastic",
+          "name": "Пластик",
+          "number": "0616",
+          "role": "Plastic",
+          "mask": "assets/models/BMWM1000RR/BMWM1000RR_0616_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "BMWM1000RR_0611_Seat",
+          "name": "Сиденье",
+          "number": "0611",
+          "role": "Seat",
+          "mask": "assets/models/BMWM1000RR/BMWM1000RR_0611_Seat_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#30343b"
+        },
+        {
+          "id": "BMWM1000RR_0633_HeadlightMask",
+          "name": "Маска фары",
+          "number": "0633",
+          "role": "HeadlightMask",
+          "mask": "assets/models/BMWM1000RR/BMWM1000RR_0633_HeadlightMask_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        }
+      ]
+    },
+    {
+      "id": "BMWS1000R",
+      "name": "BMW S 1000 R",
+      "model": "assets/models/BMWS1000R/model.glb",
+      "parts": [
+        {
+          "id": "BMWS1000R_0556_Plastic",
+          "name": "Пластик",
+          "number": "0556",
+          "role": "Plastic",
+          "mask": "assets/models/BMWS1000R/BMWS1000R_0556_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "BMWS1000R_0545_HeadlightMask",
+          "name": "Маска фары",
+          "number": "0545",
+          "role": "HeadlightMask",
+          "mask": "assets/models/BMWS1000R/BMWS1000R_0545_HeadlightMask_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "BMWS1000R_0547_InnerPlastic",
+          "name": "Внутренний пластик",
+          "number": "0547",
+          "role": "InnerPlastic",
+          "mask": "assets/models/BMWS1000R/BMWS1000R_0547_InnerPlastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#666e7b"
+        }
+      ]
+    },
+    {
+      "id": "DucatiPanigaleV4S",
+      "name": "Ducati Panigale V4 S",
+      "model": "assets/models/DucatiPanigaleV4S/model.glb",
+      "parts": [
+        {
+          "id": "DucatiPanigaleV4S_0693_Plastic",
+          "name": "Пластик · 0693",
+          "number": "0693",
+          "role": "Plastic",
+          "mask": "assets/models/DucatiPanigaleV4S/DucatiPanigaleV4S_0693_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "DucatiPanigaleV4S_0706_Plastic",
+          "name": "Пластик · 0706",
+          "number": "0706",
+          "role": "Plastic",
+          "mask": "assets/models/DucatiPanigaleV4S/DucatiPanigaleV4S_0706_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "DucatiPanigaleV4S_0711_Plastic",
+          "name": "Пластик · 0711",
+          "number": "0711",
+          "role": "Plastic",
+          "mask": "assets/models/DucatiPanigaleV4S/DucatiPanigaleV4S_0711_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "DucatiPanigaleV4S_0709_Seat",
+          "name": "Сиденье",
+          "number": "0709",
+          "role": "Seat",
+          "mask": "assets/models/DucatiPanigaleV4S/DucatiPanigaleV4S_0709_Seat_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#30343b"
+        },
+        {
+          "id": "DucatiPanigaleV4S_0718_InnerPlastic",
+          "name": "Внутренний пластик",
+          "number": "0718",
+          "role": "InnerPlastic",
+          "mask": "assets/models/DucatiPanigaleV4S/DucatiPanigaleV4S_0718_InnerPlastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#666e7b"
+        }
+      ]
+    },
+    {
+      "id": "DucatiStreetV4S",
+      "name": "Ducati Streetfighter V4 S",
+      "model": "assets/models/DucatiStreetV4S/model.glb",
+      "parts": [
+        {
+          "id": "DucatiStreetV4S_0645_Plastic",
+          "name": "Пластик · 0645",
+          "number": "0645",
+          "role": "Plastic",
+          "mask": "assets/models/DucatiStreetV4S/DucatiStreetV4S_0645_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "DucatiStreetV4S_0659_Plastic",
+          "name": "Пластик · 0659",
+          "number": "0659",
+          "role": "Plastic",
+          "mask": "assets/models/DucatiStreetV4S/DucatiStreetV4S_0659_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "DucatiStreetV4S_0676_Plastic",
+          "name": "Пластик · 0676",
+          "number": "0676",
+          "role": "Plastic",
+          "mask": "assets/models/DucatiStreetV4S/DucatiStreetV4S_0676_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "DucatiStreetV4S_0661_Seat",
+          "name": "Сиденье",
+          "number": "0661",
+          "role": "Seat",
+          "mask": "assets/models/DucatiStreetV4S/DucatiStreetV4S_0661_Seat_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#30343b"
+        },
+        {
+          "id": "DucatiStreetV4S_0682_InnerPlastic",
+          "name": "Внутренний пластик",
+          "number": "0682",
+          "role": "InnerPlastic",
+          "mask": "assets/models/DucatiStreetV4S/DucatiStreetV4S_0682_InnerPlastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#666e7b"
+        }
+      ]
+    },
+    {
+      "id": "DucatiSuperLeggera",
+      "name": "Ducati Superleggera",
+      "model": "assets/models/DucatiSuperLeggera/model.glb",
+      "parts": [
+        {
+          "id": "DucatiSuperLeggera_0907_Plastic",
+          "name": "Пластик",
+          "number": "0907",
+          "role": "Plastic",
+          "mask": "assets/models/DucatiSuperLeggera/DucatiSuperLeggera_0907_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "DucatiSuperLeggera_0909_InnerPlastic",
+          "name": "Внутренний пластик · 0909",
+          "number": "0909",
+          "role": "InnerPlastic",
+          "mask": "assets/models/DucatiSuperLeggera/DucatiSuperLeggera_0909_InnerPlastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#666e7b"
+        },
+        {
+          "id": "DucatiSuperLeggera_0917_InnerPlastic",
+          "name": "Внутренний пластик · 0917",
+          "number": "0917",
+          "role": "InnerPlastic",
+          "mask": "assets/models/DucatiSuperLeggera/DucatiSuperLeggera_0917_InnerPlastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#666e7b"
+        },
+        {
+          "id": "DucatiSuperLeggera_0922_InnerPlastic",
+          "name": "Внутренний пластик · 0922",
+          "number": "0922",
+          "role": "InnerPlastic",
+          "mask": "assets/models/DucatiSuperLeggera/DucatiSuperLeggera_0922_InnerPlastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#666e7b"
+        }
+      ]
+    },
+    {
+      "id": "HondaSH150",
+      "name": "Honda SH150",
+      "model": "assets/models/HondaSH150/model.glb",
+      "parts": [
+        {
+          "id": "HondaSH150_0736_Plastic",
+          "name": "Пластик · 0736",
+          "number": "0736",
+          "role": "Plastic",
+          "mask": "assets/models/HondaSH150/HondaSH150_0736_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "HondaSH150_0783_Plastic",
+          "name": "Пластик · 0783",
+          "number": "0783",
+          "role": "Plastic",
+          "mask": "assets/models/HondaSH150/HondaSH150_0783_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "HondaSH150_0796_Plastic",
+          "name": "Пластик · 0796",
+          "number": "0796",
+          "role": "Plastic",
+          "mask": "assets/models/HondaSH150/HondaSH150_0796_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "HondaSH150_0733_Seat",
+          "name": "Сиденье",
+          "number": "0733",
+          "role": "Seat",
+          "mask": "assets/models/HondaSH150/HondaSH150_0733_Seat_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#30343b"
+        },
+        {
+          "id": "HondaSH150_0738_InnerPlastic",
+          "name": "Внутренний пластик · 0738",
+          "number": "0738",
+          "role": "InnerPlastic",
+          "mask": "assets/models/HondaSH150/HondaSH150_0738_InnerPlastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#666e7b"
+        },
+        {
+          "id": "HondaSH150_0751_InnerPlastic",
+          "name": "Внутренний пластик · 0751",
+          "number": "0751",
+          "role": "InnerPlastic",
+          "mask": "assets/models/HondaSH150/HondaSH150_0751_InnerPlastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#666e7b"
+        },
+        {
+          "id": "HondaSH150_0758_InnerPlastic",
+          "name": "Внутренний пластик · 0758",
+          "number": "0758",
+          "role": "InnerPlastic",
+          "mask": "assets/models/HondaSH150/HondaSH150_0758_InnerPlastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#666e7b"
+        },
+        {
+          "id": "HondaSH150_0761_InnerPlastic",
+          "name": "Внутренний пластик · 0761",
+          "number": "0761",
+          "role": "InnerPlastic",
+          "mask": "assets/models/HondaSH150/HondaSH150_0761_InnerPlastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#666e7b"
+        },
+        {
+          "id": "HondaSH150_0763_RearPlastic",
+          "name": "Задний пластик",
+          "number": "0763",
+          "role": "RearPlastic",
+          "mask": "assets/models/HondaSH150/HondaSH150_0763_RearPlastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        }
+      ]
+    },
+    {
+      "id": "KawasakiNinjaH2",
+      "name": "Kawasaki Ninja H2",
+      "model": "assets/models/KawasakiNinjaH2/model.glb",
+      "parts": [
+        {
+          "id": "KawasakiNinjaH2_0400_Plastic",
+          "name": "Пластик · 0400",
+          "number": "0400",
+          "role": "Plastic",
+          "mask": "assets/models/KawasakiNinjaH2/KawasakiNinjaH2_0400_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KawasakiNinjaH2_0417_Plastic",
+          "name": "Пластик · 0417",
+          "number": "0417",
+          "role": "Plastic",
+          "mask": "assets/models/KawasakiNinjaH2/KawasakiNinjaH2_0417_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KawasakiNinjaH2_0433_Plastic",
+          "name": "Пластик · 0433",
+          "number": "0433",
+          "role": "Plastic",
+          "mask": "assets/models/KawasakiNinjaH2/KawasakiNinjaH2_0433_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KawasakiNinjaH2_0436_Plastic",
+          "name": "Пластик · 0436",
+          "number": "0436",
+          "role": "Plastic",
+          "mask": "assets/models/KawasakiNinjaH2/KawasakiNinjaH2_0436_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KawasakiNinjaH2_0470_Plastic",
+          "name": "Пластик · 0470",
+          "number": "0470",
+          "role": "Plastic",
+          "mask": "assets/models/KawasakiNinjaH2/KawasakiNinjaH2_0470_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KawasakiNinjaH2_0482_Plastic",
+          "name": "Пластик · 0482",
+          "number": "0482",
+          "role": "Plastic",
+          "mask": "assets/models/KawasakiNinjaH2/KawasakiNinjaH2_0482_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KawasakiNinjaH2_0487_Plastic",
+          "name": "Пластик · 0487",
+          "number": "0487",
+          "role": "Plastic",
+          "mask": "assets/models/KawasakiNinjaH2/KawasakiNinjaH2_0487_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KawasakiNinjaH2_0492_Plastic",
+          "name": "Пластик · 0492",
+          "number": "0492",
+          "role": "Plastic",
+          "mask": "assets/models/KawasakiNinjaH2/KawasakiNinjaH2_0492_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KawasakiNinjaH2_0493_Plastic",
+          "name": "Пластик · 0493",
+          "number": "0493",
+          "role": "Plastic",
+          "mask": "assets/models/KawasakiNinjaH2/KawasakiNinjaH2_0493_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KawasakiNinjaH2_0427_Seat",
+          "name": "Сиденье",
+          "number": "0427",
+          "role": "Seat",
+          "mask": "assets/models/KawasakiNinjaH2/KawasakiNinjaH2_0427_Seat_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#30343b"
+        },
+        {
+          "id": "KawasakiNinjaH2_0409_InnerPlastic",
+          "name": "Внутренний пластик",
+          "number": "0409",
+          "role": "InnerPlastic",
+          "mask": "assets/models/KawasakiNinjaH2/KawasakiNinjaH2_0409_InnerPlastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#666e7b"
+        },
+        {
+          "id": "KawasakiNinjaH2_0413_HeadlightMask",
+          "name": "Маска фары",
+          "number": "0413",
+          "role": "HeadlightMask",
+          "mask": "assets/models/KawasakiNinjaH2/KawasakiNinjaH2_0413_HeadlightMask_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        }
+      ]
+    },
+    {
+      "id": "KawasakiNinjaZX10R",
+      "name": "Kawasaki Ninja ZX-10R",
+      "model": "assets/models/KawasakiNinjaZX10R/model.glb",
+      "parts": [
+        {
+          "id": "KawasakiNinjaZX10R_0349_Plastic",
+          "name": "Пластик · 0349",
+          "number": "0349",
+          "role": "Plastic",
+          "mask": "assets/models/KawasakiNinjaZX10R/KawasakiNinjaZX10R_0349_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KawasakiNinjaZX10R_0378_Plastic",
+          "name": "Пластик · 0378",
+          "number": "0378",
+          "role": "Plastic",
+          "mask": "assets/models/KawasakiNinjaZX10R/KawasakiNinjaZX10R_0378_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KawasakiNinjaZX10R_0332_Seat",
+          "name": "Сиденье",
+          "number": "0332",
+          "role": "Seat",
+          "mask": "assets/models/KawasakiNinjaZX10R/KawasakiNinjaZX10R_0332_Seat_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#30343b"
+        },
+        {
+          "id": "KawasakiNinjaZX10R_0327_InnerPlastic",
+          "name": "Внутренний пластик",
+          "number": "0327",
+          "role": "InnerPlastic",
+          "mask": "assets/models/KawasakiNinjaZX10R/KawasakiNinjaZX10R_0327_InnerPlastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#666e7b"
+        },
+        {
+          "id": "KawasakiNinjaZX10R_0356_RearPlastic",
+          "name": "Задний пластик",
+          "number": "0356",
+          "role": "RearPlastic",
+          "mask": "assets/models/KawasakiNinjaZX10R/KawasakiNinjaZX10R_0356_RearPlastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        }
+      ]
+    },
+    {
+      "id": "KTM690SMCR",
+      "name": "KTM 690 SMC R",
+      "model": "assets/models/KTM690SMCR/model.glb",
+      "parts": [
+        {
+          "id": "KTM690SMCR_0875_Plastic",
+          "name": "Пластик",
+          "number": "0875",
+          "role": "Plastic",
+          "mask": "assets/models/KTM690SMCR/KTM690SMCR_0875_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KTM690SMCR_0879_Seat",
+          "name": "Сиденье",
+          "number": "0879",
+          "role": "Seat",
+          "mask": "assets/models/KTM690SMCR/KTM690SMCR_0879_Seat_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#30343b"
+        },
+        {
+          "id": "KTM690SMCR_0848_Swingarm",
+          "name": "Маятник",
+          "number": "0848",
+          "role": "Swingarm",
+          "mask": "assets/models/KTM690SMCR/KTM690SMCR_0848_Swingarm_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#666e7b"
+        },
+        {
+          "id": "KTM690SMCR_0856_ForkGuards",
+          "name": "Защита вилки",
+          "number": "0856",
+          "role": "ForkGuards",
+          "mask": "assets/models/KTM690SMCR/KTM690SMCR_0856_ForkGuards_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KTM690SMCR_0868_HeadlightMask",
+          "name": "Маска фары",
+          "number": "0868",
+          "role": "HeadlightMask",
+          "mask": "assets/models/KTM690SMCR/KTM690SMCR_0868_HeadlightMask_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": false,
+          "color": "#f0f1f2"
+        }
+      ]
+    },
+    {
+      "id": "SurronUltraBee",
+      "name": "Sur-Ron Ultra Bee",
+      "model": "assets/models/SurronUltraBee/model.glb",
+      "parts": [
+        {
+          "id": "SurronUltraBee_1028_RearPlasticAndHandguards",
+          "name": "Задний пластик и защита рук",
+          "number": "1028",
+          "role": "RearPlasticAndHandguards",
+          "mask": "assets/models/SurronUltraBee/SurronUltraBee_1028_RearPlasticAndHandguards_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "SurronUltraBee_1031_SidePlastic",
+          "name": "Боковой пластик",
+          "number": "1031",
+          "role": "SidePlastic",
+          "mask": "assets/models/SurronUltraBee/SurronUltraBee_1031_SidePlastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "SurronUltraBee_1048_ForkGuards",
+          "name": "Защита вилки",
+          "number": "1048",
+          "role": "ForkGuards",
+          "mask": "assets/models/SurronUltraBee/SurronUltraBee_1048_ForkGuards_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "SurronUltraBee_1070_FrontPlastic",
+          "name": "Передний пластик",
+          "number": "1070",
+          "role": "FrontPlastic",
+          "mask": "assets/models/SurronUltraBee/SurronUltraBee_1070_FrontPlastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        }
+      ]
+    },
+    {
+      "id": "SuzuLtr450",
+      "name": "Suzuki LT-R450",
+      "model": "assets/models/SuzuLtr450/model.glb",
+      "parts": [
+        {
+          "id": "SuzuLtr450_0108_Plastic",
+          "name": "Пластик",
+          "number": "0108",
+          "role": "Plastic",
+          "mask": "assets/models/SuzuLtr450/SuzuLtr450_0108_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        }
+      ]
+    },
+    {
+      "id": "YamaAerox",
+      "name": "Yamaha Aerox",
+      "model": "assets/models/YamaAerox/model.glb",
+      "parts": [
+        {
+          "id": "YamaAerox_0807_Plastic",
+          "name": "Пластик · 0807",
+          "number": "0807",
+          "role": "Plastic",
+          "mask": "assets/models/YamaAerox/YamaAerox_0807_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "YamaAerox_0818_Plastic",
+          "name": "Пластик · 0818",
+          "number": "0818",
+          "role": "Plastic",
+          "mask": "assets/models/YamaAerox/YamaAerox_0818_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "YamaAerox_0830_Plastic",
+          "name": "Пластик · 0830",
+          "number": "0830",
+          "role": "Plastic",
+          "mask": "assets/models/YamaAerox/YamaAerox_0830_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "YamaAerox_0810_Seat",
+          "name": "Сиденье",
+          "number": "0810",
+          "role": "Seat",
+          "mask": "assets/models/YamaAerox/YamaAerox_0810_Seat_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#30343b"
+        },
+        {
+          "id": "YamaAerox_0813_Footboards",
+          "name": "Подножки",
+          "number": "0813",
+          "role": "Footboards",
+          "mask": "assets/models/YamaAerox/YamaAerox_0813_Footboards_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "YamaAerox_0819_InnerPlastic",
+          "name": "Внутренний пластик",
+          "number": "0819",
+          "role": "InnerPlastic",
+          "mask": "assets/models/YamaAerox/YamaAerox_0819_InnerPlastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#666e7b"
+        },
+        {
+          "id": "YamaAerox_0824_FrontFender",
+          "name": "Переднее крыло",
+          "number": "0824",
+          "role": "FrontFender",
+          "mask": "assets/models/YamaAerox/YamaAerox_0824_FrontFender_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        }
+      ]
+    },
+    {
+      "id": "YamBanshee",
+      "name": "Yamaha Banshee",
+      "model": "assets/models/YamBanshee/model.glb",
+      "parts": [
+        {
+          "id": "YamBanshee_0315_Plastic",
+          "name": "Пластик",
+          "number": "0315",
+          "role": "Plastic",
+          "mask": "assets/models/YamBanshee/YamBanshee_0315_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "YamBanshee_0291_Seat",
+          "name": "Сиденье · 0291",
+          "number": "0291",
+          "role": "Seat",
+          "mask": "assets/models/YamBanshee/YamBanshee_0291_Seat_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#30343b"
+        },
+        {
+          "id": "YamBanshee_0293_Seat",
+          "name": "Сиденье · 0293",
+          "number": "0293",
+          "role": "Seat",
+          "mask": "assets/models/YamBanshee/YamBanshee_0293_Seat_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#30343b"
+        }
+      ]
+    },
+    {
+      "id": "YamRaptorR1",
+      "name": "Yamaha Raptor",
+      "model": "assets/models/YamRaptorR1/model.glb",
+      "parts": [
+        {
+          "id": "YamRaptorR1_0207_Plastic",
+          "name": "Пластик",
+          "number": "0207",
+          "role": "Plastic",
+          "mask": "assets/models/YamRaptorR1/YamRaptorR1_0207_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "YamRaptorR1_0166_Seat",
+          "name": "Сиденье",
+          "number": "0166",
+          "role": "Seat",
+          "mask": "assets/models/YamRaptorR1/YamRaptorR1_0166_Seat_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#30343b"
+        },
+        {
+          "id": "YamRaptorR1_0165_SidePlastic",
+          "name": "Боковой пластик",
+          "number": "0165",
+          "role": "SidePlastic",
+          "mask": "assets/models/YamRaptorR1/YamRaptorR1_0165_SidePlastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        }
+      ]
+    },
+    {
+      "id": "YamYfz450",
+      "name": "Yamaha YFZ450",
+      "model": "assets/models/YamYfz450/model.glb",
+      "parts": [
+        {
+          "id": "YamYfz450_0051_Plastic",
+          "name": "Пластик",
+          "number": "0051",
+          "role": "Plastic",
+          "mask": "assets/models/YamYfz450/YamYfz450_0051_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "YamYfz450_0056_Seat",
+          "name": "Сиденье",
+          "number": "0056",
+          "role": "Seat",
+          "mask": "assets/models/YamYfz450/YamYfz450_0056_Seat_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#30343b"
+        }
+      ]
+    }
+  ]
+}
