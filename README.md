@@ -77,6 +77,6 @@ node scripts/package-site.mjs
 
 ## Размещение
 
-GitHub Pages: **Deploy from a branch → main → / (root)**. Все пути относительные, `.nojekyll` отключает обработку Jekyll. Файлы сайта: `index.html`, `styles.css`, `.nojekyll`, `dist/`, `assets/`, `THIRD_PARTY_LICENSES.txt`. Для размещения не нужны API-ключи или секреты.
+GitHub Pages: **Settings → Pages → Source → GitHub Actions**. Workflow `.github/workflows/pages.yml` публикует уже проверенные статические файлы при изменениях в `main`; его можно запустить вручную через Actions. Явно указаны `pages: write` и `id-token: write`, необходимые официальному действию публикации. Все пути относительные. В артефакт сайта входят `index.html`, `styles.css`, `.nojekyll`, `dist/`, `assets/`, `THIRD_PARTY_LICENSES.txt`. Добавлять собственные API-ключи или секреты не требуется.
 
 Результаты проверок описаны в [TEST_REPORT.md](TEST_REPORT.md). Лицензии используемых Three.js и fflate включены в `THIRD_PARTY_LICENSES.txt`.

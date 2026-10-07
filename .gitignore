@@ -1,5 +1,6 @@
 node_modules/
 outputs/
+_site/
 *.local.json
 *.local.txt
 .DS_Store
