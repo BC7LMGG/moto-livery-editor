@@ -19,6 +19,15 @@ async function pixel(bytes, x = .5, y = .5) {
 }
 async function fixture(color, width, height) { const data = await page.evaluate(({ color, width, height }) => { const c = document.createElement('canvas'); c.width = width; c.height = height; const ctx = c.getContext('2d'); ctx.fillStyle = color; ctx.fillRect(0, 0, width, height); return c.toDataURL('image/png').split(',')[1]; }, { color, width, height }); return Buffer.from(data, 'base64'); }
 async function number(id, value) { await page.locator(`#${id}`).fill(String(value)); await page.locator(`#${id}`).press('Tab'); }
+async function transform() {
+  return page.evaluate(() => Object.fromEntries([['x', 'layer-x'], ['y', 'layer-y'], ['w', 'layer-width'], ['h', 'layer-height'], ['angle', 'layer-angle']].map(([key, id]) => [key, Number(document.getElementById(id).value) / (key === 'angle' ? 1 : 100)])));
+}
+function world(layer, x, y) { const a = layer.angle * Math.PI / 180; return { x: layer.x + x * Math.cos(a) - y * Math.sin(a), y: layer.y + x * Math.sin(a) + y * Math.cos(a) }; }
+async function dragLocal(layer, startX, startY, endX, endY) {
+  const box = await page.locator('#uv-canvas').boundingBox(); const start = world(layer, startX, startY), end = world(layer, endX, endY);
+  await page.mouse.move(box.x + start.x * box.width, box.y + start.y * box.height); await page.mouse.down(); await page.mouse.move(box.x + end.x * box.width, box.y + end.y * box.height, { steps: 8 }); await page.mouse.up();
+}
+function close(actual, expected, tolerance = .002) { assert.ok(Math.abs(actual - expected) < tolerance, `${actual} != ${expected}`); }
 try {
   await page.goto(base); await loaded();
   assert.equal(await page.locator('#model-select option').count(), 16);
@@ -37,6 +46,20 @@ try {
   const translucent = (await pixel(await download('export-part', 'opacity-50.png'))).rgba; assert.ok(translucent[0] >= 126 && translucent[0] <= 128 && translucent[2] >= 127 && translucent[2] <= 129);
   await page.locator('#layer-down').click(); assert.deepEqual((await pixel(await download('export-part', 'red-top.png'))).rgba, [255, 0, 0, 255]); checks.push('multiple images, layer order, opacity, compositor');
   await page.locator('.layer-row').first().click();
+  await number('layer-width', 60); await number('layer-height', 20); let t = await transform(); close(t.w, .6); close(t.h, .2);
+  await page.locator('#lock-aspect').check(); await number('layer-width', 30); t = await transform(); close(t.w, .3); close(t.h, .1); await page.locator('#lock-aspect').uncheck();
+  await number('layer-angle', 37); await number('layer-width', 50); await number('layer-height', 30); await page.locator('#center-x').click(); await page.locator('#center-y').click();
+  t = await transform(); const fixedRight = world(t, t.w / 2, 0);
+  await dragLocal(t, -t.w / 2, 0, -t.w / 2 + .2, 0); let stretched = await transform(); close(stretched.w, .3); close(stretched.h, .3);
+  const actualRight = world(stretched, stretched.w / 2, 0); close(actualRight.x, fixedRight.x); close(actualRight.y, fixedRight.y);
+  const fixedTop = world(stretched, 0, -stretched.h / 2);
+  await dragLocal(stretched, 0, stretched.h / 2, 0, stretched.h / 2 - .15); t = await transform(); close(t.w, .3); close(t.h, .15);
+  const actualTop = world(t, 0, -t.h / 2); close(actualTop.x, fixedTop.x); close(actualTop.y, fixedTop.y);
+  await dragLocal(t, t.w / 2, t.h / 2, -t.w / 2 + .45, -t.h / 2 + .09); t = await transform(); close(t.w, .45); close(t.h, .09);
+  await page.locator('#lock-aspect').check(); await dragLocal(t, t.w / 2, t.h / 2, -t.w / 2 + .6, -t.h / 2 + .09); t = await transform(); close(t.w, .6); close(t.h, .12);
+  await page.locator('#undo').click(); t = await transform(); close(t.w, .45); close(t.h, .09); await page.locator('#redo').click(); t = await transform(); close(t.w, .6); close(t.h, .12);
+  await page.locator('#lock-aspect').uncheck(); await page.locator('#reset-transform').click(); t = await transform(); close(t.w, .64); close(t.h, .32); close(t.x, .5); close(t.y, .5); close(t.angle, 0);
+  checks.push('independent width/height, rotated edge and corner stretching, fixed opposite anchors, aspect lock, centering, reset and undo/redo');
   await number('layer-angle', 30); await number('layer-width', 55); await page.locator('#flip-x').click();
   if (!hosted) { const changed = (await diagnostics()).layers.at(-1); assert.equal(changed.angle, 30); assert.equal(changed.flipX, true); assert.ok(Math.abs(changed.w - .55) < 1e-6); }
   const bounds = await page.locator('#uv-canvas').boundingBox();
@@ -50,6 +73,7 @@ try {
   await page.locator('#crop-apply').click();
   if (!hosted) { const cropped = (await diagnostics()).layers.at(-1); assert.ok(Math.abs(cropped.crop.w - .5) < .01); assert.ok(Math.abs(cropped.crop.h - .5) < .01); assert.ok(Math.abs(cropped.w - .275) < .01); }
   checks.push('source-region crop preserves pixel placement');
+  const guideBefore = await download('export-part', 'guide-before.png'); await page.locator('#guide-opacity').evaluate(e => { e.value = '10'; e.dispatchEvent(new Event('input', { bubbles: true })); }); const guideAfter = await download('export-part', 'guide-after.png'); assert.deepEqual(guideBefore, guideAfter); await page.locator('#guide-opacity').evaluate(e => { e.value = '80'; e.dispatchEvent(new Event('input', { bubbles: true })); }); checks.push('guide strength changes display only, export identical');
   await page.locator('#duplicate-layer').click(); assert.equal(await page.locator('.layer-row').count(), 3); await page.locator('#delete-layer').click(); assert.equal(await page.locator('.layer-row').count(), 2); await page.locator('#undo').click(); assert.equal(await page.locator('.layer-row').count(), 3);
   checks.push('duplicate, delete, restore');
   const beforeCopy = hosted ? null : (await diagnostics()).layers;

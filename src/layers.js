@@ -4,6 +4,22 @@ export function rotate(x, y, degrees) { const a = radians(degrees); return { x: 
 export function worldToLocal(layer, point) { return rotate(point.x - layer.x, point.y - layer.y, -layer.angle); }
 export function localToWorld(layer, x, y) { const p = rotate(x, y, layer.angle); return { x: p.x + layer.x, y: p.y + layer.y }; }
 export function hitLayer(layer, point) { const p = worldToLocal(layer, point); return Math.abs(p.x) <= layer.w / 2 && Math.abs(p.y) <= layer.h / 2; }
+// Keep the opposite edge/corner fixed, including when the layer is rotated.
+// A zero handle axis denotes an edge midpoint: stretch only the other axis.
+export function resizeLayer(layer, original, handle, point, keepAspect = false) {
+  const { sx, sy } = handle;
+  const anchor = localToWorld(original, -sx * original.w / 2, -sy * original.h / 2);
+  const local = rotate(point.x - anchor.x, point.y - anchor.y, -original.angle);
+  let w = sx ? clamp(sx * local.x, .005, 10) : original.w;
+  let h = sy ? clamp(sy * local.y, .005, 10) : original.h;
+  if (keepAspect) {
+    const requested = sx && sy ? Math.max(w / original.w, h / original.h) : sx ? w / original.w : h / original.h;
+    const scale = clamp(requested, Math.max(.005 / original.w, .005 / original.h), Math.min(10 / original.w, 10 / original.h));
+    w = original.w * scale; h = original.h * scale;
+  }
+  const center = rotate(sx * w / 2, sy * h / 2, original.angle);
+  Object.assign(layer, { x: anchor.x + center.x, y: anchor.y + center.y, w, h });
+}
 export function drawLayer(ctx, layer, image, width, height) {
   if (!layer.visible || layer.opacity <= 0) return;
   const c = layer.crop;

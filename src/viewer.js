@@ -6,7 +6,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 export class Viewer {
   constructor(container, onPick) {
     this.container = container; this.onPick = onPick; this.parts = new Map(); this.dirty = true;
-    this.scene = new THREE.Scene(); this.scene.background = new THREE.Color('#171d23');
+    this.scene = new THREE.Scene(); this.scene.background = new THREE.Color('#11171e');
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping; this.renderer.toneMappingExposure = .85;
@@ -19,7 +19,7 @@ export class Viewer {
     this.scene.add(new THREE.HemisphereLight(0xe0f3ff, 0x263023, .7));
     const key = new THREE.DirectionalLight(0xffffff, 1.8); key.position.set(3, 5, 4); this.scene.add(key);
     const rim = new THREE.DirectionalLight(0xaed8ff, .6); rim.position.set(-4, 3, -3); this.scene.add(rim);
-    const floor = new THREE.Mesh(new THREE.CircleGeometry(4, 64), new THREE.MeshBasicMaterial({ color: 0x1a222a })); floor.rotation.x = -Math.PI / 2; floor.position.y = -.04; this.scene.add(floor);
+    const floor = new THREE.Mesh(new THREE.CircleGeometry(4, 64), new THREE.MeshBasicMaterial({ color: 0x151e28 })); floor.rotation.x = -Math.PI / 2; floor.position.y = -.04; this.scene.add(floor);
     this.grid = new THREE.GridHelper(7, 28, 0x384c43, 0x26343d); this.grid.material.transparent = true; this.grid.material.opacity = .18; this.scene.add(this.grid);
     this.group = new THREE.Group(); this.scene.add(this.group);
     this.raycaster = new THREE.Raycaster(); this.down = null;

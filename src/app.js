@@ -1,6 +1,6 @@
 import { zipSync, strToU8 } from 'fflate';
 import { Viewer } from './viewer.js';
-import { History, clamp, rotate, worldToLocal, localToWorld, hitLayer, compose, applyCrop } from './layers.js';
+import { History, clamp, localToWorld, hitLayer, resizeLayer, compose, applyCrop } from './layers.js';
 
 const $ = id => document.getElementById(id);
 const canvas = $('uv-canvas'); const context = canvas.getContext('2d');
@@ -18,7 +18,7 @@ function commit() { workspace.history.push(snapshot()); workspace.dirty = true; 
 function updateButtons() {
   const loaded = !!part && $('model-loader').hidden; const layer = activeLayer(); const doc = activeDocument();
   for (const id of ['add-images', 'export-part', 'export-all', 'project-save', 'project-save-mobile', 'reset-part', 'base-color', 'transparent-base']) $(id).disabled = !loaded || busy;
-  for (const id of ['crop-layer', 'duplicate-layer', 'delete-layer']) $(id).disabled = !loaded || !layer || busy;
+  for (const id of ['crop-layer', 'duplicate-layer', 'delete-layer', 'center-x', 'center-y', 'reset-transform']) $(id).disabled = !loaded || !layer || busy;
   $('undo').disabled = !loaded || !workspace?.history.canUndo || busy; $('redo').disabled = !loaded || !workspace?.history.canRedo || busy;
   const index = doc?.layers.findIndex(l => l.id === layer?.id) ?? -1;
   $('layer-up').disabled = index < 0 || index >= doc.layers.length - 1 || busy;
@@ -32,7 +32,7 @@ function updateProperties() {
   $('base-color').value = doc.color; $('color-value').textContent = doc.color.toUpperCase(); $('transparent-base').checked = doc.transparent;
   if (layer) {
     set('layer-name', layer.name); set('layer-opacity', Math.round(layer.opacity * 100)); $('opacity-value').textContent = `${Math.round(layer.opacity * 100)}%`;
-    set('layer-width', Math.round(layer.w * 1000) / 10); set('layer-angle', Math.round(layer.angle * 10) / 10);
+    set('layer-width', Math.round(layer.w * 1000) / 10); set('layer-height', Math.round(layer.h * 1000) / 10); set('layer-angle', Math.round(layer.angle * 10) / 10);
     set('layer-x', Math.round(layer.x * 1000) / 10); set('layer-y', Math.round(layer.y * 1000) / 10);
   }
   updateButtons();
@@ -51,28 +51,41 @@ function renderLayers() {
     row.append(image, titleBox, visibility); $('layers-list').append(row);
   }
 }
-function checker(ctx, size = 16) {
-  const tile = document.createElement('canvas'); tile.width = tile.height = size * 2; const c = tile.getContext('2d');
-  c.fillStyle = '#f7f8fa'; c.fillRect(0, 0, size * 2, size * 2); c.fillStyle = '#e5e8ed'; c.fillRect(0, 0, size, size); c.fillRect(size, size, size, size);
-  ctx.save(); ctx.globalCompositeOperation = 'destination-over'; ctx.fillStyle = ctx.createPattern(tile, 'repeat'); ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height); ctx.restore();
+const checkerTile = document.createElement('canvas'); checkerTile.width = checkerTile.height = 32;
+const tileContext = checkerTile.getContext('2d'); tileContext.fillStyle = '#2b333e'; tileContext.fillRect(0, 0, 32, 32); tileContext.fillStyle = '#343e4a'; tileContext.fillRect(0, 0, 16, 16); tileContext.fillRect(16, 16, 16, 16);
+const checkerPattern = context.createPattern(checkerTile, 'repeat');
+function checker(ctx) {
+  ctx.save(); ctx.globalCompositeOperation = 'destination-over'; ctx.fillStyle = checkerPattern; ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height); ctx.restore();
 }
 function selectionHandles(layer) {
   const corners = [-1, 1].flatMap(sx => [-1, 1].map(sy => ({ ...localToWorld(layer, sx * layer.w / 2, sy * layer.h / 2), sx, sy })));
-  return { corners, rotation: localToWorld(layer, 0, -layer.h / 2 - 26 / canvas.getBoundingClientRect().width) };
+  const sides = [[-1, 0], [1, 0], [0, -1], [0, 1]].map(([sx, sy]) => ({ ...localToWorld(layer, sx * layer.w / 2, sy * layer.h / 2), sx, sy }));
+  return { corners, sides, rotation: localToWorld(layer, 0, -layer.h / 2 - 30 / canvas.getBoundingClientRect().width) };
+}
+function guideOverlay(doc) {
+  const guide = maskGuides.get(part.id);
+  const rgb = doc.color.slice(1).match(/../g).map(v => parseInt(v, 16));
+  const light = rgb[0] * .2126 + rgb[1] * .7152 + rgb[2] * .0722 > 140;
+  const color = !doc.transparent && light ? '#193824' : '#a2dfed';
+  if (guide.dataset.tint !== color) {
+    // Reuse the mask canvas and preserve its alpha; no second 4 MB canvas needed.
+    const c = guide.getContext('2d'); c.save(); c.globalCompositeOperation = 'source-in'; c.fillStyle = color; c.fillRect(0, 0, 1024, 1024); c.restore(); guide.dataset.tint = color;
+  }
+  return guide;
 }
 function paintEditor() {
   const doc = activeDocument(); if (!doc) return;
   compose(canvas, doc, assets); checker(context);
-  if ($('show-guide').checked && maskGuides.get(part.id)) context.drawImage(maskGuides.get(part.id), 0, 0, 1024, 1024);
+  if ($('show-guide').checked && maskGuides.get(part.id)) { context.save(); context.globalAlpha = Number($('guide-opacity').value) / 100; context.drawImage(guideOverlay(doc), 0, 0, 1024, 1024); context.restore(); }
   const layer = activeLayer();
   if (layer) {
     const pixels = 1024 / Math.max(100, canvas.getBoundingClientRect().width); const handles = selectionHandles(layer);
-    context.save(); context.strokeStyle = '#4d872d'; context.fillStyle = '#fff'; context.lineWidth = 1.5 * pixels;
+    context.save(); context.strokeStyle = '#8cf4f2'; context.fillStyle = '#142b30'; context.lineWidth = 1.5 * pixels;
     const ordered = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([x, y]) => localToWorld(layer, x * layer.w / 2, y * layer.h / 2));
     context.beginPath(); ordered.forEach((p, i) => i ? context.lineTo(p.x * 1024, p.y * 1024) : context.moveTo(p.x * 1024, p.y * 1024)); context.closePath(); context.stroke();
     const top = localToWorld(layer, 0, -layer.h / 2); context.beginPath(); context.moveTo(top.x * 1024, top.y * 1024); context.lineTo(handles.rotation.x * 1024, handles.rotation.y * 1024); context.stroke();
-    for (const p of handles.corners) { const side = 7 * pixels; context.fillRect(p.x * 1024 - side / 2, p.y * 1024 - side / 2, side, side); context.strokeRect(p.x * 1024 - side / 2, p.y * 1024 - side / 2, side, side); }
-    context.beginPath(); context.arc(handles.rotation.x * 1024, handles.rotation.y * 1024, 4 * pixels, 0, Math.PI * 2); context.fill(); context.stroke(); context.restore();
+    for (const p of [...handles.corners, ...handles.sides]) { const side = (p.sx && p.sy ? 8 : 6) * pixels; context.fillRect(p.x * 1024 - side / 2, p.y * 1024 - side / 2, side, side); context.strokeRect(p.x * 1024 - side / 2, p.y * 1024 - side / 2, side, side); }
+    context.beginPath(); context.arc(handles.rotation.x * 1024, handles.rotation.y * 1024, 5 * pixels, 0, Math.PI * 2); context.fill(); context.stroke(); context.restore();
   }
   $('empty-hint').hidden = !!doc.layers.length;
 }
@@ -172,7 +185,7 @@ canvas.addEventListener('pointerdown', event => {
   const p = point(event); const doc = activeDocument(); let layer = activeLayer(); let action = 'move'; let handle;
   if (layer) {
     const h = selectionHandles(layer); const hit = v => Math.hypot(v.x - p.x, v.y - p.y) * canvas.getBoundingClientRect().width < 12;
-    handle = h.corners.find(hit); if (handle) action = 'resize'; else if (hit(h.rotation)) action = 'rotate';
+    handle = [...h.corners, ...h.sides].find(hit); if (handle) action = 'resize'; else if (hit(h.rotation)) action = 'rotate';
   }
   if (action === 'move') {
     layer = [...doc.layers].reverse().find(l => l.visible && hitLayer(l, p)); doc.selectedId = layer?.id || null;
@@ -182,16 +195,20 @@ canvas.addEventListener('pointerdown', event => {
   canvas.setPointerCapture(event.pointerId); canvas.focus(); event.preventDefault();
 });
 canvas.addEventListener('pointermove', event => {
-  if (!pointer) return;
+  if (!pointer) {
+    const layer = activeLayer(); const p = point(event); let cursor = 'default';
+    if (layer) {
+      const h = selectionHandles(layer); const hit = v => Math.hypot(v.x - p.x, v.y - p.y) * canvas.getBoundingClientRect().width < 12;
+      const handle = [...h.corners, ...h.sides].find(hit);
+      if (handle) { const angle = ((Math.atan2(handle.sy, handle.sx) * 180 / Math.PI + layer.angle) % 180 + 180) % 180; cursor = ['ew-resize', 'nwse-resize', 'ns-resize', 'nesw-resize', 'ew-resize'][Math.round(angle / 45)]; }
+      else if (hit(h.rotation)) cursor = 'grab'; else if (activeDocument().layers.some(l => l.visible && hitLayer(l, p))) cursor = 'move';
+    }
+    canvas.style.cursor = cursor; return;
+  }
   const p = point(event); const { original: old, layer, action, handle } = pointer;
   if (action === 'move') { layer.x = old.x + p.x - pointer.start.x; layer.y = old.y + p.y - pointer.start.y; }
   if (action === 'rotate') { layer.angle = Math.atan2(p.y - old.y, p.x - old.x) * 180 / Math.PI + 90; if (event.shiftKey) layer.angle = Math.round(layer.angle / 15) * 15; }
-  if (action === 'resize') {
-    const opposite = localToWorld(old, -handle.sx * old.w / 2, -handle.sy * old.h / 2); const local = rotate(p.x - opposite.x, p.y - opposite.y, -old.angle);
-    let w = clamp(handle.sx * local.x, .005, 10); let h = clamp(handle.sy * local.y, .005, 10);
-    if (!event.shiftKey) { const scale = Math.max(w / old.w, h / old.h); w = old.w * scale; h = old.h * scale; }
-    const shift = rotate(handle.sx * w / 2, handle.sy * h / 2, old.angle); layer.x = opposite.x + shift.x; layer.y = opposite.y + shift.y; layer.w = w; layer.h = h;
-  }
+  if (action === 'resize') resizeLayer(layer, old, handle, p, $('lock-aspect').checked || event.shiftKey);
   schedulePaint();
 });
 function finishPointer() { if (!pointer) return; pointer = null; commit(); refresh(); }
@@ -209,15 +226,22 @@ for (const [id, key] of [['flip-x', 'flipX'], ['flip-y', 'flipY']]) $(id).addEve
 $('layer-name').addEventListener('change', event => { const layer = activeLayer(); if (!layer) return; layer.name = event.target.value.trim().slice(0, 100) || 'Картинка'; commit(); refresh(); });
 $('layer-opacity').addEventListener('input', event => { const layer = activeLayer(); if (!layer) return; layer.opacity = Number(event.target.value) / 100; schedulePaint(); });
 $('layer-opacity').addEventListener('change', () => { commit(); refresh(); });
-for (const [id, key] of [['layer-x', 'x'], ['layer-y', 'y'], ['layer-angle', 'angle'], ['layer-width', 'w']]) $(id).addEventListener('change', event => {
+for (const [id, key] of [['layer-x', 'x'], ['layer-y', 'y'], ['layer-angle', 'angle'], ['layer-width', 'w'], ['layer-height', 'h']]) $(id).addEventListener('change', event => {
   const layer = activeLayer(); const number = Number(event.target.value); if (!layer || !Number.isFinite(number) || event.target.value === '') { updateProperties(); return; }
-  if (key === 'w') { const width = clamp(number / 100, .01, 10); layer.h *= width / layer.w; layer.w = width; }
+  if (key === 'w' || key === 'h') {
+    let size = clamp(number / 100, .005, 10); const other = key === 'w' ? 'h' : 'w';
+    if ($('lock-aspect').checked) { const scale = clamp(size / layer[key], Math.max(.005 / layer.w, .005 / layer.h), Math.min(10 / layer.w, 10 / layer.h)); layer[other] *= scale; size = layer[key] * scale; }
+    layer[key] = size;
+  }
   else layer[key] = key === 'angle' ? clamp(number, -360, 360) : clamp(number / 100, -10, 10);
   commit(); refresh();
 });
+for (const [id, axis] of [['center-x', 'x'], ['center-y', 'y']]) $(id).addEventListener('click', () => { const layer = activeLayer(); if (!layer) return; layer[axis] = .5; commit(); refresh(); });
+$('reset-transform').addEventListener('click', () => { const layer = activeLayer(); if (!layer) return; const image = assets.get(layer.assetId).bitmap; const w = image.width * layer.crop.w, h = image.height * layer.crop.h; const fit = .64 / Math.max(w, h); Object.assign(layer, { x: .5, y: .5, w: w * fit, h: h * fit, angle: 0, flipX: false, flipY: false }); commit(); refresh(); });
 $('base-color').addEventListener('input', event => { activeDocument().color = event.target.value; schedulePaint(); }); $('base-color').addEventListener('change', () => { commit(); refresh(); });
 $('transparent-base').addEventListener('change', event => { activeDocument().transparent = event.target.checked; commit(); refresh(); });
 $('show-guide').addEventListener('change', paintEditor);
+$('guide-opacity').addEventListener('input', paintEditor);
 $('zoom-in').addEventListener('click', () => fitCanvas(zoom * 1.25)); $('zoom-out').addEventListener('click', () => fitCanvas(zoom / 1.25)); $('zoom-fit').addEventListener('click', () => { fitCanvas(1); $('uv-stage').scrollTo(0, 0); });
 $('uv-stage').addEventListener('wheel', event => { if (event.ctrlKey || event.metaKey) { event.preventDefault(); fitCanvas(zoom * (event.deltaY < 0 ? 1.12 : 1 / 1.12)); } }, { passive: false });
 new ResizeObserver(() => fitCanvas()).observe($('uv-stage'));
