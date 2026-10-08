@@ -145,6 +145,90 @@
       ]
     },
     {
+      "id": "BSEZ3",
+      "name": "BSE Z3",
+      "model": "assets/models/BSEZ3/model.glb",
+      "parts": [
+        {
+          "id": "BSEZ3_0936_Plastic",
+          "name": "Пластик",
+          "number": "0936",
+          "role": "Plastic",
+          "mask": "assets/models/BSEZ3/BSEZ3_0936_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "BSEZ3_0935_Seat",
+          "name": "Сиденье",
+          "number": "0935",
+          "role": "Seat",
+          "mask": "assets/models/BSEZ3/BSEZ3_0935_Seat_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#30343b"
+        },
+        {
+          "id": "BSEZ3_0947_Swingarm",
+          "name": "Маятник",
+          "number": "0947",
+          "role": "Swingarm",
+          "mask": "assets/models/BSEZ3/BSEZ3_0947_Swingarm_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#666e7b"
+        },
+        {
+          "id": "BSEZ3_0950_ForkGuards",
+          "name": "Защита вилки",
+          "number": "0950",
+          "role": "ForkGuards",
+          "mask": "assets/models/BSEZ3/BSEZ3_0950_ForkGuards_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "BSEZ3_0954_HandlebarPad",
+          "name": "Подушка руля",
+          "number": "0954",
+          "role": "HandlebarPad",
+          "mask": "assets/models/BSEZ3/BSEZ3_0954_HandlebarPad_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#20262e"
+        },
+        {
+          "id": "BSEZ3_0960_HeadlightMask",
+          "name": "Маска фары",
+          "number": "0960",
+          "role": "HeadlightMask",
+          "mask": "assets/models/BSEZ3/BSEZ3_0960_HeadlightMask_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "BSEZ3_0963_FrontFender",
+          "name": "Переднее крыло",
+          "number": "0963",
+          "role": "FrontFender",
+          "mask": "assets/models/BSEZ3/BSEZ3_0963_FrontFender_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        }
+      ]
+    },
+    {
       "id": "DucatiPanigaleV4S",
       "name": "Ducati Panigale V4 S",
       "model": "assets/models/DucatiPanigaleV4S/model.glb",
@@ -627,6 +711,262 @@
       ]
     },
     {
+      "id": "KayoK1",
+      "name": "Kayo K1",
+      "model": "assets/models/KayoK1/model.glb",
+      "parts": [
+        {
+          "id": "KayoK1_1174_Plastic",
+          "name": "Пластик · 1174",
+          "number": "1174",
+          "role": "Plastic",
+          "mask": "assets/models/KayoK1/KayoK1_1174_Plastic_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KayoK1_1175_Plastic",
+          "name": "Пластик · 1175",
+          "number": "1175",
+          "role": "Plastic",
+          "mask": "assets/models/KayoK1/KayoK1_1175_Plastic_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KayoK1_1176_Plastic",
+          "name": "Пластик · 1176",
+          "number": "1176",
+          "role": "Plastic",
+          "mask": "assets/models/KayoK1/KayoK1_1176_Plastic_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KayoK1_1177_Plastic",
+          "name": "Пластик · 1177",
+          "number": "1177",
+          "role": "Plastic",
+          "mask": "assets/models/KayoK1/KayoK1_1177_Plastic_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KayoK1_1178_Plastic",
+          "name": "Пластик · 1178",
+          "number": "1178",
+          "role": "Plastic",
+          "mask": "assets/models/KayoK1/KayoK1_1178_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KayoK1_1181_Seat",
+          "name": "Сиденье",
+          "number": "1181",
+          "role": "Seat",
+          "mask": "assets/models/KayoK1/KayoK1_1181_Seat_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#30343b"
+        },
+        {
+          "id": "KayoK1_1186_Swingarm",
+          "name": "Маятник",
+          "number": "1186",
+          "role": "Swingarm",
+          "mask": "assets/models/KayoK1/KayoK1_1186_Swingarm_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#666e7b"
+        },
+        {
+          "id": "KayoK1_1188_SwingarmGuards",
+          "name": "Защита маятника",
+          "number": "1188",
+          "role": "SwingarmGuards",
+          "mask": "assets/models/KayoK1/KayoK1_1188_SwingarmGuards_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KayoK1_1189_ForkGuards",
+          "name": "Защита вилки",
+          "number": "1189",
+          "role": "ForkGuards",
+          "mask": "assets/models/KayoK1/KayoK1_1189_ForkGuards_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KayoK1_1193_HandlebarPad",
+          "name": "Подушка руля",
+          "number": "1193",
+          "role": "HandlebarPad",
+          "mask": "assets/models/KayoK1/KayoK1_1193_HandlebarPad_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#20262e"
+        },
+        {
+          "id": "KayoK1_1200_HeadlightMask",
+          "name": "Маска фары",
+          "number": "1200",
+          "role": "HeadlightMask",
+          "mask": "assets/models/KayoK1/KayoK1_1200_HeadlightMask_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KayoK1_1203_FrontFender",
+          "name": "Переднее крыло",
+          "number": "1203",
+          "role": "FrontFender",
+          "mask": "assets/models/KayoK1/KayoK1_1203_FrontFender_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        }
+      ]
+    },
+    {
+      "id": "KewsK16",
+      "name": "Kews K16",
+      "model": "assets/models/KewsK16/model.glb",
+      "parts": [
+        {
+          "id": "KewsK16_1135_Plastic",
+          "name": "Пластик · 1135",
+          "number": "1135",
+          "role": "Plastic",
+          "mask": "assets/models/KewsK16/KewsK16_1135_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KewsK16_1136_Plastic",
+          "name": "Пластик · 1136",
+          "number": "1136",
+          "role": "Plastic",
+          "mask": "assets/models/KewsK16/KewsK16_1136_Plastic_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KewsK16_1137_Plastic",
+          "name": "Пластик · 1137",
+          "number": "1137",
+          "role": "Plastic",
+          "mask": "assets/models/KewsK16/KewsK16_1137_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KewsK16_1133_Seat",
+          "name": "Сиденье",
+          "number": "1133",
+          "role": "Seat",
+          "mask": "assets/models/KewsK16/KewsK16_1133_Seat_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#30343b"
+        },
+        {
+          "id": "KewsK16_1147_SwingarmGuards",
+          "name": "Защита маятника",
+          "number": "1147",
+          "role": "SwingarmGuards",
+          "mask": "assets/models/KewsK16/KewsK16_1147_SwingarmGuards_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KewsK16_1148_Swingarm",
+          "name": "Маятник",
+          "number": "1148",
+          "role": "Swingarm",
+          "mask": "assets/models/KewsK16/KewsK16_1148_Swingarm_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#666e7b"
+        },
+        {
+          "id": "KewsK16_1149_ForkGuards",
+          "name": "Защита вилки",
+          "number": "1149",
+          "role": "ForkGuards",
+          "mask": "assets/models/KewsK16/KewsK16_1149_ForkGuards_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KewsK16_1153_HandlebarPad",
+          "name": "Подушка руля",
+          "number": "1153",
+          "role": "HandlebarPad",
+          "mask": "assets/models/KewsK16/KewsK16_1153_HandlebarPad_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#20262e"
+        },
+        {
+          "id": "KewsK16_1160_HeadlightMask",
+          "name": "Маска фары",
+          "number": "1160",
+          "role": "HeadlightMask",
+          "mask": "assets/models/KewsK16/KewsK16_1160_HeadlightMask_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "KewsK16_1161_FrontFender",
+          "name": "Переднее крыло",
+          "number": "1161",
+          "role": "FrontFender",
+          "mask": "assets/models/KewsK16/KewsK16_1161_FrontFender_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        }
+      ]
+    },
+    {
       "id": "KTM690SMCR",
       "name": "KTM 690 SMC R",
       "model": "assets/models/KTM690SMCR/model.glb",
@@ -684,6 +1024,101 @@
           "width": 4096,
           "height": 4096,
           "hasMesh": false,
+          "color": "#f0f1f2"
+        }
+      ]
+    },
+    {
+      "id": "Progassi300",
+      "name": "Progassi 300",
+      "model": "assets/models/Progassi300/model.glb",
+      "parts": [
+        {
+          "id": "Progassi300_0992_Plastic",
+          "name": "Пластик",
+          "number": "0992",
+          "role": "Plastic",
+          "mask": "assets/models/Progassi300/Progassi300_0992_Plastic_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "Progassi300_0975_Seat",
+          "name": "Сиденье",
+          "number": "0975",
+          "role": "Seat",
+          "mask": "assets/models/Progassi300/Progassi300_0975_Seat_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#30343b"
+        },
+        {
+          "id": "Progassi300_0972_InnerPlastic",
+          "name": "Внутренний пластик",
+          "number": "0972",
+          "role": "InnerPlastic",
+          "mask": "assets/models/Progassi300/Progassi300_0972_InnerPlastic_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#666e7b"
+        },
+        {
+          "id": "Progassi300_0997_Swingarm",
+          "name": "Маятник",
+          "number": "0997",
+          "role": "Swingarm",
+          "mask": "assets/models/Progassi300/Progassi300_0997_Swingarm_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#666e7b"
+        },
+        {
+          "id": "Progassi300_1001_ForkGuards",
+          "name": "Защита вилки",
+          "number": "1001",
+          "role": "ForkGuards",
+          "mask": "assets/models/Progassi300/Progassi300_1001_ForkGuards_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "Progassi300_1003_HandlebarPad",
+          "name": "Подушка руля",
+          "number": "1003",
+          "role": "HandlebarPad",
+          "mask": "assets/models/Progassi300/Progassi300_1003_HandlebarPad_MASK.png",
+          "width": 2048,
+          "height": 2048,
+          "hasMesh": true,
+          "color": "#20262e"
+        },
+        {
+          "id": "Progassi300_1007_HeadlightMask",
+          "name": "Маска фары",
+          "number": "1007",
+          "role": "HeadlightMask",
+          "mask": "assets/models/Progassi300/Progassi300_1007_HeadlightMask_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
+          "color": "#f0f1f2"
+        },
+        {
+          "id": "Progassi300_1011_FrontFender",
+          "name": "Переднее крыло",
+          "number": "1011",
+          "role": "FrontFender",
+          "mask": "assets/models/Progassi300/Progassi300_1011_FrontFender_MASK.png",
+          "width": 4096,
+          "height": 4096,
+          "hasMesh": true,
           "color": "#f0f1f2"
         }
       ]

@@ -11,13 +11,17 @@ const uuid = () => crypto.randomUUID();
 const activeDocument = () => workspace?.parts[part?.id];
 const activeLayer = () => activeDocument()?.layers.find(layer => layer.id === activeDocument().selectedId);
 const element = (tag, className, text) => { const node = document.createElement(tag); if (className) node.className = className; if (text !== undefined) node.textContent = text; return node; };
+function icon(name) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.setAttribute('aria-hidden', 'true');
+  const use = document.createElementNS(svg.namespaceURI, 'use'); use.setAttribute('href', `#i-${name}`); svg.append(use); return svg;
+}
 function toast(message) { $('toast').textContent = message; $('toast').hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 4500); }
 function status(message) { $('app-status').textContent = message; }
 function snapshot() { return structuredClone(workspace.parts); }
 function commit() { workspace.history.push(snapshot()); workspace.dirty = true; updateButtons(); }
 function updateButtons() {
   const loaded = !!part && $('model-loader').hidden; const layer = activeLayer(); const doc = activeDocument();
-  for (const id of ['add-images', 'export-part', 'export-all', 'project-save', 'project-save-mobile', 'reset-part', 'base-color', 'transparent-base']) $(id).disabled = !loaded || busy;
+  for (const id of ['add-images', 'download-uv', 'export-part', 'export-all', 'project-save', 'project-save-mobile', 'reset-part', 'base-color', 'transparent-base']) $(id).disabled = !loaded || busy;
   for (const id of ['crop-layer', 'duplicate-layer', 'delete-layer', 'center-x', 'center-y', 'reset-transform']) $(id).disabled = !loaded || !layer || busy;
   $('undo').disabled = !loaded || !workspace?.history.canUndo || busy; $('redo').disabled = !loaded || !workspace?.history.canRedo || busy;
   const index = doc?.layers.findIndex(l => l.id === layer?.id) ?? -1;
@@ -45,14 +49,14 @@ function renderLayers() {
     const row = element('div', `layer-row${layer.id === doc.selectedId ? ' selected' : ''}${layer.visible ? '' : ' invisible'}`); row.tabIndex = 0; row.setAttribute('role', 'button'); row.setAttribute('aria-label', `Слой ${layer.name}`); row.dataset.layerId = layer.id;
     const image = element('img', 'layer-thumb'); image.src = assets.get(layer.assetId).thumbnail; image.alt = '';
     const titleBox = element('div'); titleBox.title = layer.name; titleBox.append(element('div', 'layer-title', layer.name), element('div', 'layer-subtitle', `${Math.round(layer.opacity * 100)}% · ${layer.crop.w < .999 || layer.crop.h < .999 ? 'обрезано' : 'картинка'}`));
-    const visibility = element('button', 'visibility', layer.visible ? '◉' : '○'); visibility.title = layer.visible ? 'Скрыть слой' : 'Показать слой'; visibility.setAttribute('aria-label', visibility.title);
+    const visibility = element('button', 'visibility'); visibility.append(icon(layer.visible ? 'eye' : 'eye-off')); visibility.title = layer.visible ? 'Скрыть слой' : 'Показать слой'; visibility.setAttribute('aria-label', visibility.title);
     visibility.addEventListener('click', event => { event.stopPropagation(); layer.visible = !layer.visible; doc.selectedId = layer.id; commit(); refresh(); });
     row.addEventListener('click', () => { doc.selectedId = layer.id; refresh(); }); row.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); doc.selectedId = layer.id; refresh(); } });
     row.append(image, titleBox, visibility); $('layers-list').append(row);
   }
 }
 const checkerTile = document.createElement('canvas'); checkerTile.width = checkerTile.height = 32;
-const tileContext = checkerTile.getContext('2d'); tileContext.fillStyle = '#2b333e'; tileContext.fillRect(0, 0, 32, 32); tileContext.fillStyle = '#343e4a'; tileContext.fillRect(0, 0, 16, 16); tileContext.fillRect(16, 16, 16, 16);
+const tileContext = checkerTile.getContext('2d'); tileContext.fillStyle = '#080a0d'; tileContext.fillRect(0, 0, 32, 32); tileContext.fillStyle = '#0c0f13'; tileContext.fillRect(0, 0, 16, 16); tileContext.fillRect(16, 16, 16, 16);
 const checkerPattern = context.createPattern(checkerTile, 'repeat');
 function checker(ctx) {
   ctx.save(); ctx.globalCompositeOperation = 'destination-over'; ctx.fillStyle = checkerPattern; ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height); ctx.restore();
@@ -66,7 +70,7 @@ function guideOverlay(doc) {
   const guide = maskGuides.get(part.id);
   const rgb = doc.color.slice(1).match(/../g).map(v => parseInt(v, 16));
   const light = rgb[0] * .2126 + rgb[1] * .7152 + rgb[2] * .0722 > 140;
-  const color = !doc.transparent && light ? '#193824' : '#a2dfed';
+  const color = $('show-base').checked && !doc.transparent && light ? '#193824' : '#a2dfed';
   if (guide.dataset.tint !== color) {
     // Reuse the mask canvas and preserve its alpha; no second 4 MB canvas needed.
     const c = guide.getContext('2d'); c.save(); c.globalCompositeOperation = 'source-in'; c.fillStyle = color; c.fillRect(0, 0, 1024, 1024); c.restore(); guide.dataset.tint = color;
@@ -75,7 +79,8 @@ function guideOverlay(doc) {
 }
 function paintEditor() {
   const doc = activeDocument(); if (!doc) return;
-  compose(canvas, doc, assets); checker(context);
+  // The dark working background is a display preference, independent of exports.
+  compose(canvas, doc, assets, { transparent: !$('show-base').checked || doc.transparent }); checker(context);
   if ($('show-guide').checked && maskGuides.get(part.id)) { context.save(); context.globalAlpha = Number($('guide-opacity').value) / 100; context.drawImage(guideOverlay(doc), 0, 0, 1024, 1024); context.restore(); }
   const layer = activeLayer();
   if (layer) {
@@ -309,6 +314,15 @@ $('crop-apply').addEventListener('click', () => { if (!cropState.rect || cropSta
 $('crop-copy').addEventListener('click', () => { const doc = activeDocument(); if (!cropState.rect || cropState.rect.w < .001 || cropState.rect.h < .001 || doc.layers.length >= 32) return; const copy = structuredClone(cropState.layer); copy.id = uuid(); copy.name = `${copy.name} — область`.slice(0, 100); applyCrop(copy, cropState.rect); doc.layers.splice(doc.layers.indexOf(cropState.layer) + 1, 0, copy); doc.selectedId = copy.id; commit(); refresh(); $('crop-dialog').close(); toast('Область добавлена отдельным слоем: её можно перемещать'); });
 
 function download(blob, name) { const url = URL.createObjectURL(blob); const link = element('a'); link.href = url; link.download = name; document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 30000); }
+$('show-base').addEventListener('change', paintEditor);
+$('download-uv').addEventListener('click', () => exporting(async () => {
+  const selectedPart = part;
+  const response = await fetch(selectedPart.mask);
+  if (!response.ok) throw new Error('Не удалось скачать UV-развёртку. Попробуйте ещё раз.');
+  // Download the untouched source PNG: no canvas, tint, layers or resizing.
+  download(await response.blob(), `${selectedPart.id}_MASK.png`);
+  toast(`UV-развёртка сохранена · ${selectedPart.width} × ${selectedPart.height}`);
+}));
 const blobOf = (surface, type = 'image/png') => new Promise((resolve, reject) => surface.toBlob(blob => blob ? resolve(blob) : reject(new Error('Не удалось сохранить изображение.')), type));
 function exportCanvas(p, doc, resolution = $('export-size').value) {
   const output = document.createElement('canvas'); const size = Number(resolution); output.width = size || p.width; output.height = size || p.height; compose(output, doc, assets); return output;
@@ -362,7 +376,7 @@ $('project-input').addEventListener('change', async event => {
 });
 
 async function initialize() {
-  const response = await fetch('./assets/catalog.json'); if (!response.ok) throw new Error('Каталог моделей не загрузился.'); catalog = await response.json();
+  const response = await fetch('./assets/catalog.json', { cache: 'no-cache' }); if (!response.ok) throw new Error('Каталог моделей не загрузился.'); catalog = await response.json();
   $('model-select').replaceChildren(...catalog.models.map(m => { const option = element('option', '', m.name); option.value = m.id; return option; }));
   try { viewer = new Viewer($('viewer'), id => { if (!busy) selectPart(id); }); }
   catch (error) { console.warn('3D unavailable', error); toast('3D недоступно в этом браузере. Развёртки и экспорт продолжают работать.'); $('camera-reset').disabled = true; }

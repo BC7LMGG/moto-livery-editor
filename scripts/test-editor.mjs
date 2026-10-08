@@ -5,6 +5,8 @@ import { unzipSync } from 'fflate';
 
 const base = process.env.EDITOR_URL || 'http://127.0.0.1:8794/moto-livery-editor/';
 const hosted = !new URL(base).hostname.match(/^(localhost|127\.0\.0\.1)$/);
+const catalog = JSON.parse(await readFile('assets/catalog.json', 'utf8'));
+const newModelParts = { BSEZ3: 7, KayoK1: 12, Progassi300: 8, KewsK16: 10 };
 await mkdir('outputs/tests', { recursive: true });
 const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', args: ['--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1600, height: 1000 }, acceptDownloads: true });
@@ -30,13 +32,24 @@ async function dragLocal(layer, startX, startY, endX, endY) {
 function close(actual, expected, tolerance = .002) { assert.ok(Math.abs(actual - expected) < tolerance, `${actual} != ${expected}`); }
 try {
   await page.goto(base); await loaded();
-  assert.equal(await page.locator('#model-select option').count(), 16);
+  assert.equal(await page.locator('#model-select option').count(), 20);
   assert.equal(await page.locator('#part-select option').count(), 5);
   if (!hosted) { const initial = await diagnostics(); assert.equal(initial.meshParts, 4); assert.equal(initial.modelId, 'KWSKX250F'); }
   await page.screenshot({ path: 'outputs/tests/desktop-empty.png', fullPage: true }); checks.push('KX250F: all four meshes, five masks, lazy catalog');
+  await page.locator('#show-guide').uncheck();
+  assert.deepEqual(await page.locator('#uv-canvas').evaluate(c => [...c.getContext('2d').getImageData(10, 10, 1, 1).data]), [12, 15, 19, 255]);
+  await page.locator('#show-base').check();
+  assert.deepEqual(await page.locator('#uv-canvas').evaluate(c => [...c.getContext('2d').getImageData(10, 10, 1, 1).data]), [184, 237, 66, 255]);
+  await page.locator('#show-base').uncheck(); await page.locator('#show-guide').check();
+  const originalUV = catalog.models.find(m => m.id === 'KWSKX250F').parts[0];
+  assert.deepEqual(await download('download-uv', 'KX250F-UV-MASK.png'), await readFile(originalUV.mask));
+  await page.locator('#help-button').click(); assert.equal(await page.locator('#help-dialog').isVisible(), true); await page.locator('#help-close').click();
+  const missingIcons = await page.locator('svg use').evaluateAll(nodes => nodes.map(n => n.getAttribute('href')).filter(id => !document.querySelector(id)));
+  assert.deepEqual(missingIcons, []); checks.push('black working canvas, optional base-color preview, exact source UV download, help and SVG icons');
   await page.locator('#export-size').selectOption('1024');
   const guideOn = await download('export-part', 'empty-guide-on.png'); await page.locator('#show-guide').uncheck(); const guideOff = await download('export-part', 'empty-guide-off.png');
   assert.deepEqual(guideOn, guideOff); assert.deepEqual((await pixel(guideOn, .03, .03)).rgba, [184, 237, 66, 255]); checks.push('UV guide excluded from PNG, exact base color');
+  await page.locator('#show-base').check(); const withBasePreview = await download('export-part', 'base-preview-on.png'); assert.deepEqual(withBasePreview, guideOff); await page.locator('#show-base').uncheck(); checks.push('working background does not change texture PNG');
   await page.locator('#show-guide').check();
   const red = await fixture('#ff0000', 800, 400); const blue = await fixture('#0000ff', 400, 400);
   await page.locator('#image-input').setInputFiles([{ name: 'Red graphic.png', mimeType: 'image/png', buffer: red }, { name: 'Blue graphic.png', mimeType: 'image/png', buffer: blue }]);
@@ -101,10 +114,27 @@ try {
   await page.locator('#transparent-base').check(); const transparent = await download('export-part', 'transparent.png'); assert.equal((await pixel(transparent, .01, .01)).rgba[3], 0); checks.push('transparent PNG');
   const bad = { ...data, modelId: 'unknown-model' }; await page.locator('#project-input').setInputFiles({ name: 'bad.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(bad)) }); await page.waitForTimeout(200); assert.equal(await page.locator('#model-select').inputValue(), 'KWSKX250F');
   const modelIds = await page.locator('#model-select option').evaluateAll(options => options.map(o => o.value));
-  for (const id of modelIds) { await page.locator('#model-select').selectOption(id); await loaded(); if (!hosted) { const state = await diagnostics(); assert.equal(state.modelId, id); assert.ok(state.meshParts >= 1); } }
-  checks.push('all 16 model bundles load and assemble');
+  for (const id of modelIds) {
+    await page.locator('#model-select').selectOption(id); await loaded();
+    const definition = catalog.models.find(m => m.id === id);
+    assert.equal(await page.locator('#part-select option').count(), definition.parts.length);
+    if (!hosted) { const state = await diagnostics(); assert.equal(state.modelId, id); assert.equal(state.meshParts, definition.parts.filter(p => p.hasMesh).length); }
+    if (newModelParts[id]) {
+      assert.equal(definition.parts.length, newModelParts[id]); assert.ok(definition.parts.every(p => p.hasMesh));
+      for (const p of definition.parts) {
+        await page.locator('#part-select').selectOption(p.id);
+        const mask = await download('download-uv', `${p.id}_MASK.png`);
+        assert.deepEqual(mask, await readFile(p.mask));
+        assert.equal(mask.readUInt32BE(16), p.width); assert.equal(mask.readUInt32BE(20), p.height);
+      }
+      await page.locator('#part-select').selectOption(definition.parts[0].id);
+      await page.screenshot({ path: `outputs/tests/${id}.png`, fullPage: true });
+    }
+  }
+  checks.push('all 20 model bundles assemble; all 37 new parts and original UV downloads match exactly');
   await page.locator('#model-select').selectOption('KWSKX250F'); await loaded(); assert.equal(await page.locator('.layer-row').count(), 3); checks.push('in-session edits retained across models');
   const lightId = await page.locator('#part-select option').evaluateAll(options => options.find(o => o.value.includes('_1110_')).value); await page.locator('#part-select').selectOption(lightId); assert.equal(await page.locator('#part-focus').isDisabled(), true);
+  assert.deepEqual(await download('download-uv', 'mask-only-part.png'), await readFile(catalog.models.find(m => m.id === 'KWSKX250F').parts.find(p => p.id === lightId).mask)); checks.push('UV download also works for mask-only parts');
   await page.locator('#part-select').selectOption(data.parts ? Object.keys(data.parts).find(k => k.includes('_1119_')) : '');
   await page.setViewportSize({ width: 390, height: 844 }); await page.waitForTimeout(300); await page.screenshot({ path: 'outputs/tests/mobile-editor.png', fullPage: true });
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1); assert.equal(overflow, false); checks.push('mobile layout without horizontal overflow');

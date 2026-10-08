@@ -8,8 +8,8 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'">
   <title>Livery Studio — редактор графики</title>
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles.css?v=c988f99f3a">
-  <script type="module" src="./dist/app.js?v=ed210a43fa"></script>
+  <link rel="stylesheet" href="./styles.css?v=3e145db37e">
+  <script type="module" src="./dist/app.js?v=f1de41f427"></script>
 </head>
 <body>
   <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
@@ -22,6 +22,17 @@
     <symbol id="i-focus" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/><circle cx="12" cy="12" r="3"/></symbol>
     <symbol id="i-undo" viewBox="0 0 24 24"><path d="m9 5-6 5 6 5M3 10h11a7 7 0 0 1 7 7v2"/></symbol>
     <symbol id="i-redo" viewBox="0 0 24 24"><path d="m15 5 6 5-6 5m6-5H10a7 7 0 0 0-7 7v2"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.7 2.2c-.8.4-1.2 1-1.2 1.8M12 16h.01"/></symbol>
+    <symbol id="i-uv" viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z M9 3v15M15 6v15"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 20V4m-6 6 6-6 6 6"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v16m-6-6 6 6 6-6"/></symbol>
+    <symbol id="i-flip-x" viewBox="0 0 24 24"><path d="M12 3v18M8 6 3 18h5ZM16 6l5 12h-5Z"/></symbol>
+    <symbol id="i-flip-y" viewBox="0 0 24 24"><path d="M3 12h18M6 8l12-5v5ZM6 16l12 5v-5Z"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="m3 3 18 18M10 5h2c6 0 10 7 10 7s-1 2-3 4M6 6c-3 2-4 6-4 6s4 7 10 7c2 0 4-.7 5-1.5M10 10a3 3 0 0 0 4 4"/></symbol>
   </defs></svg>
   <header class="topbar">
     <a class="brand" href="./" aria-label="Livery Studio">
@@ -31,7 +42,7 @@
     <label class="model-field"><span>Мотоцикл / квадроцикл</span><select id="model-select" disabled aria-label="Выбрать модель"><option>Загрузка моделей…</option></select></label>
     <span class="local-status"><i></i> Всё на вашем устройстве</span>
     <div class="top-actions">
-      <button id="help-button" class="icon-button" title="Как пользоваться" aria-label="Как пользоваться">?</button>
+      <button id="help-button" class="icon-button" title="Как пользоваться" aria-label="Как пользоваться"><svg aria-hidden="true"><use href="#i-help"/></svg></button>
       <button id="project-save" class="quiet-button" disabled><svg aria-hidden="true"><use href="#i-save"/></svg>Сохранить проект</button>
       <button id="export-all" class="primary-button" disabled><svg aria-hidden="true"><use href="#i-download"/></svg>Скачать набор <span>ZIP</span></button>
     </div>
@@ -58,16 +69,16 @@
         <button id="duplicate-layer" class="tool-button" disabled title="Создать копию слоя"><svg aria-hidden="true"><use href="#i-copy"/></svg>Копия</button>
         <button id="delete-layer" class="icon-button" disabled title="Удалить выбранный слой" aria-label="Удалить слой"><svg viewBox="0 0 20 20"><path d="M4 5h12M8 5V3h4v2M6 5l1 12h6l1-12M9 8v6m2-6v6"/></svg></button>
       </div>
-      <div id="uv-stage" class="uv-stage"><div class="uv-space"><canvas id="uv-canvas" width="1024" height="1024" tabindex="0" aria-label="UV-холст. Боковые ручки растягивают картинку по одной оси, угловые — по двум. Shift сохраняет пропорции."></canvas></div><div id="empty-hint" class="empty-hint"><span class="hint-mark"><svg aria-hidden="true"><use href="#i-image"/></svg></span><div><strong>Дайте форме свой характер</strong><span>Добавьте картинки или перетащите их на холст</span></div><span class="hint-plus">＋</span></div></div>
-      <div class="canvas-footer"><div class="guide-controls"><label class="guide-toggle"><input type="checkbox" id="show-guide" checked> UV-подсказка</label><input id="guide-opacity" type="range" min="10" max="100" value="80" aria-label="Непрозрачность UV-подсказки" title="Сила UV-подсказки"></div><div class="zoom-controls"><button id="zoom-out" class="icon-button" aria-label="Уменьшить">−</button><button id="zoom-fit" class="zoom-value" title="Вписать развёртку">100%</button><button id="zoom-in" class="icon-button" aria-label="Увеличить">＋</button></div></div>
-      <div class="export-note"><span>UV-подсказка не попадает в текстуру</span><button id="export-part" class="text-button" disabled>Скачать эту деталь ↗</button></div>
+      <div id="uv-stage" class="uv-stage"><div class="uv-space"><canvas id="uv-canvas" width="1024" height="1024" tabindex="0" aria-label="UV-холст. Боковые ручки растягивают картинку по одной оси, угловые — по двум. Shift сохраняет пропорции."></canvas></div><div id="empty-hint" class="empty-hint"><span class="hint-mark"><svg aria-hidden="true"><use href="#i-image"/></svg></span><div><strong>Ваша графика начинается здесь</strong><span>Добавьте картинки или перетащите их на холст</span></div></div></div>
+      <div class="canvas-footer"><div class="guide-controls"><label class="guide-toggle"><input type="checkbox" id="show-guide" checked> UV-подсказка</label><input id="guide-opacity" type="range" min="10" max="100" value="80" aria-label="Непрозрачность UV-подсказки" title="Сила UV-подсказки"><label class="guide-toggle base-preview-toggle" title="Показать выбранный цвет детали на холсте. На текстуру и 3D этот переключатель не влияет."><input type="checkbox" id="show-base"> Цвет основы</label></div><div class="zoom-controls"><button id="zoom-out" class="icon-button" aria-label="Уменьшить"><svg aria-hidden="true"><use href="#i-minus"/></svg></button><button id="zoom-fit" class="zoom-value" title="Вписать развёртку">100%</button><button id="zoom-in" class="icon-button" aria-label="Увеличить"><svg aria-hidden="true"><use href="#i-plus"/></svg></button></div></div>
+      <div class="export-note"><span>Исходная маска и готовая текстура</span><div class="export-actions"><button id="download-uv" class="quiet-button uv-download" disabled title="Скачать исходную чёрную UV-маску PNG в оригинальном размере"><svg aria-hidden="true"><use href="#i-uv"/></svg>Скачать UV</button><button id="export-part" class="text-button" disabled title="Скачать готовую текстуру выбранной детали без UV-подсказки"><svg aria-hidden="true"><use href="#i-download"/></svg>Текстура PNG</button></div></div>
     </section>
 
     <aside class="inspector panel" aria-label="Слои и настройки">
       <div class="sidebar-heading"><div class="heading-title"><span class="section-number">03</span><h2>Слои</h2></div><span id="layer-count" class="badge">0</span></div>
       <p class="small-note">Верхний слой перекрывает нижний</p>
       <div id="layers-list" class="layers-list"><div class="no-layers">Добавьте первую картинку</div></div>
-      <div class="layer-order"><button id="layer-up" class="quiet-button" disabled>↑ Выше</button><button id="layer-down" class="quiet-button" disabled>↓ Ниже</button></div>
+      <div class="layer-order"><button id="layer-up" class="quiet-button" disabled><svg aria-hidden="true"><use href="#i-up"/></svg>Выше</button><button id="layer-down" class="quiet-button" disabled><svg aria-hidden="true"><use href="#i-down"/></svg>Ниже</button></div>
       <section id="layer-properties" class="properties" hidden>
         <label class="property-label">Имя слоя<input id="layer-name" type="text" maxlength="100" autocomplete="off"></label>
         <label class="property-label"><span>Непрозрачность <output id="opacity-value">100%</output></span><input id="layer-opacity" type="range" min="0" max="100" value="100"></label>
@@ -76,7 +87,7 @@
         <label class="aspect-toggle"><input id="lock-aspect" type="checkbox">Сохранять пропорции<span title="При перетаскивании можно также удерживать Shift">Shift</span></label>
         <div class="property-grid"><label class="property-label">X, %<input id="layer-x" type="number" step="1"></label><label class="property-label">Y, %<input id="layer-y" type="number" step="1"></label></div>
         <div class="property-grid rotation-row"><label class="property-label">Поворот, °<input id="layer-angle" type="number" min="-360" max="360" step="1"></label><div class="align-buttons"><button id="center-x" class="quiet-button" title="Центрировать слой по горизонтали">Центр X</button><button id="center-y" class="quiet-button" title="Центрировать слой по вертикали">Центр Y</button></div></div>
-        <div class="flip-buttons"><button id="flip-x" class="quiet-button">↔ Отразить</button><button id="flip-y" class="quiet-button">↕ Отразить</button></div>
+        <div class="flip-buttons"><button id="flip-x" class="quiet-button" title="Отразить по горизонтали"><svg aria-hidden="true"><use href="#i-flip-x"/></svg>Отразить X</button><button id="flip-y" class="quiet-button" title="Отразить по вертикали"><svg aria-hidden="true"><use href="#i-flip-y"/></svg>Отразить Y</button></div>
         <button id="reset-transform" class="text-button transform-reset"><svg aria-hidden="true"><use href="#i-reset"/></svg>Сбросить трансформацию</button>
       </section>
       <section class="base-properties"><h3>Основа детали</h3><label class="color-row"><input id="base-color" type="color" value="#b8ed42" disabled><span id="color-value">#B8ED42</span><span class="muted">Цвет</span></label><label class="transparent-row"><input id="transparent-base" type="checkbox" disabled> Прозрачный фон PNG</label></section>
@@ -90,12 +101,12 @@
   <input id="project-input" class="file-input" type="file" accept=".livery.json,.json,application/json">
 
   <dialog id="crop-dialog" class="crop-dialog">
-    <div class="dialog-heading"><div><span class="eyebrow">ВЫБРАННЫЙ СЛОЙ</span><h2>Обрезать картинку</h2></div><button id="crop-close" class="icon-button" aria-label="Закрыть">×</button></div>
+    <div class="dialog-heading"><div><span class="eyebrow">ВЫБРАННЫЙ СЛОЙ</span><h2>Обрезать картинку</h2></div><button id="crop-close" class="icon-button" aria-label="Закрыть"><svg aria-hidden="true"><use href="#i-close"/></svg></button></div>
     <p class="muted">Выделите нужную область. Рамку можно перемещать и менять за углы.</p>
     <div class="crop-stage"><canvas id="crop-canvas" width="900" height="560" aria-label="Выделение области обрезки"></canvas></div>
     <div class="dialog-footer"><button id="crop-new" class="quiet-button">Новое выделение</button><button id="crop-reset" class="quiet-button">Вся картинка</button><span id="crop-size" class="muted"></span><button id="crop-copy" class="quiet-button">Область новым слоем</button><button id="crop-apply" class="primary-button">Применить обрезку</button></div>
   </dialog>
-  <dialog id="help-dialog" class="help-dialog"><div class="dialog-heading"><h2>От картинки до готовой графики</h2><button id="help-close" class="icon-button" aria-label="Закрыть">×</button></div><ol><li>Выберите мотоцикл и деталь. Все доступные mesh-детали видны в 3D.</li><li>Добавьте одну или несколько картинок — каждая станет отдельным слоем выбранной детали.</li><li>Тяните картинку по развёртке. Боковые ручки растягивают по ширине или высоте; угловые меняют обе. Удерживайте Shift или включите «Сохранять пропорции» для равномерного масштаба. Кружок над рамкой поворачивает слой.</li><li>Ширину и высоту можно указать отдельно в панели трансформации. «Центр X/Y» выравнивает слой, а «Сбросить трансформацию» возвращает его размер и положение, сохраняя обрезку.</li><li>Обрежьте ненужное или выделите область новым слоем. Настройте прозрачность и порядок. UV-подсказку можно скрыть или ослабить ползунком.</li><li>Скачайте деталь в PNG или весь набор в ZIP. Подсказки и рамки в экспорт не попадают.</li></ol><p>Ctrl+Z — отменить, Ctrl+Shift+Z — повторить. Стрелки двигают слой, Shift ускоряет. Проект можно сохранить файлом и открыть позже.</p><p class="muted">Изображения обрабатываются в вашем браузере. Детали с отметкой «только 2D» имеют маску, но в исходной папке нет mesh для их 3D-просмотра.</p></dialog>
+  <dialog id="help-dialog" class="help-dialog"><div class="dialog-heading"><h2>От картинки до готовой графики</h2><button id="help-close" class="icon-button" aria-label="Закрыть"><svg aria-hidden="true"><use href="#i-close"/></svg></button></div><ol><li>Выберите мотоцикл и деталь. Все доступные mesh-детали видны в 3D.</li><li>Добавьте одну или несколько картинок — каждая станет отдельным слоем выбранной детали.</li><li>Тяните картинку по развёртке. Боковые ручки растягивают по ширине или высоте; угловые меняют обе. Удерживайте Shift или включите «Сохранять пропорции» для равномерного масштаба. Кружок над рамкой поворачивает слой.</li><li>Ширину и высоту можно указать отдельно в панели трансформации. «Центр X/Y» выравнивает слой, а «Сбросить трансформацию» возвращает его размер и положение, сохраняя обрезку.</li><li>Обрежьте ненужное или выделите область новым слоем. Настройте прозрачность и порядок. UV-подсказку можно скрыть или ослабить ползунком.</li><li>«Скачать UV» сохраняет исходную чёрную маску PNG. «Цвет основы» включает цветной фон на холсте. Готовую текстуру скачайте отдельно в PNG или весь набор в ZIP. Подсказки и рамки в экспорт не попадают.</li></ol><p>Ctrl+Z — отменить, Ctrl+Shift+Z — повторить. Стрелки двигают слой, Shift ускоряет. Проект можно сохранить файлом и открыть позже.</p><p class="muted">Изображения обрабатываются в вашем браузере. Детали с отметкой «только 2D» имеют маску, но в исходной папке нет mesh для их 3D-просмотра.</p></dialog>
   <noscript>Для редактора необходим включённый JavaScript.</noscript>
 </body>
 </html>
