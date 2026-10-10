@@ -1,9 +1,12 @@
 import { zipSync, strToU8 } from 'fflate';
 import { Viewer } from './viewer.js';
-import { History, clamp, localToWorld, hitLayer, resizeLayer, compose, applyCrop } from './layers.js';
+import { History, clamp, localToWorld, hitLayer, resizeLayer, drawLayer, compose, applyCrop } from './layers.js';
+import { removeBackground } from './background.js';
 
 const $ = id => document.getElementById(id);
 const canvas = $('uv-canvas'); const context = canvas.getContext('2d');
+const board = $('uv-board'), overflowCanvas = $('overflow-canvas'), selectionOverlay = $('selection-overlay');
+let viewBounds;
 const assets = new Map(); const workspaces = new Map();
 let catalog, model, part, workspace, viewer, maskGuides = new Map(), textures = new Map();
 let loadToken = 0, zoom = 1, pointer = null, cropState = null, renderQueued = false, toastTimer, busy = false;
@@ -22,7 +25,7 @@ function commit() { workspace.history.push(snapshot()); workspace.dirty = true; 
 function updateButtons() {
   const loaded = !!part && $('model-loader').hidden; const layer = activeLayer(); const doc = activeDocument();
   for (const id of ['add-images', 'download-uv', 'export-part', 'export-all', 'project-save', 'project-save-mobile', 'reset-part', 'base-color', 'transparent-base']) $(id).disabled = !loaded || busy;
-  for (const id of ['crop-layer', 'duplicate-layer', 'delete-layer', 'center-x', 'center-y', 'reset-transform']) $(id).disabled = !loaded || !layer || busy;
+  for (const id of ['crop-layer', 'remove-background', 'duplicate-layer', 'delete-layer', 'center-x', 'center-y', 'reset-transform', 'fit-layer', 'zoom-layer']) $(id).disabled = !loaded || !layer || busy;
   $('undo').disabled = !loaded || !workspace?.history.canUndo || busy; $('redo').disabled = !loaded || !workspace?.history.canRedo || busy;
   const index = doc?.layers.findIndex(l => l.id === layer?.id) ?? -1;
   $('layer-up').disabled = index < 0 || index >= doc.layers.length - 1 || busy;
@@ -77,21 +80,48 @@ function guideOverlay(doc) {
   }
   return guide;
 }
+function layerBounds(layer) {
+  const points = layer ? selectionHandles(layer).corners : [];
+  return { minX: Math.min(0, ...points.map(p => p.x)), minY: Math.min(0, ...points.map(p => p.y)), maxX: Math.max(1, ...points.map(p => p.x)), maxY: Math.max(1, ...points.map(p => p.y)) };
+}
+function paintSelection(layer) {
+  const pixels = parseFloat(canvas.style.width) || 420;
+  // Freeze the workspace geometry during a drag, so shifting its origin cannot
+  // move the pointer relative to the texture and make resizing jump.
+  if (!pointer || !viewBounds) {
+    const b = layerBounds(layer), pad = 40 / pixels;
+    viewBounds = { x: b.minX - pad, y: b.minY - pad - (layer ? 30 / pixels : 0), w: b.maxX - b.minX + 2 * pad, h: b.maxY - b.minY + 2 * pad + (layer ? 30 / pixels : 0) };
+  }
+  const b = viewBounds, width = Math.ceil(b.w * pixels), height = Math.ceil(b.h * pixels);
+  board.style.width = `${width}px`; board.style.height = `${height}px`;
+  canvas.style.left = `${-b.x * pixels}px`; canvas.style.top = `${-b.y * pixels}px`;
+  selectionOverlay.setAttribute('width', width); selectionOverlay.setAttribute('height', height); selectionOverlay.setAttribute('viewBox', `0 0 ${width} ${height}`); selectionOverlay.replaceChildren();
+  overflowCanvas.style.width = `${width}px`; overflowCanvas.style.height = `${height}px`;
+  if (!layer) { overflowCanvas.width = overflowCanvas.height = 1; return; }
+  // Only the selected image is ghosted outside the export square. The raster
+  // stays capped at 2048px even if the scrollable workspace is much larger.
+  const scale = Math.min(1, 2048 / width, 2048 / height);
+  const rw = Math.ceil(width * scale), rh = Math.ceil(height * scale);
+  if (overflowCanvas.width !== rw || overflowCanvas.height !== rh) { overflowCanvas.width = rw; overflowCanvas.height = rh; }
+  const c = overflowCanvas.getContext('2d'); c.clearRect(0, 0, rw, rh); c.save(); c.scale(scale, scale); c.translate(-b.x * pixels, -b.y * pixels);
+  drawLayer(c, layer, assets.get(layer.assetId).bitmap, pixels, pixels);
+  c.globalCompositeOperation = 'destination-out'; c.fillStyle = '#000'; c.fillRect(0, 0, pixels, pixels); c.restore();
+  const xy = p => ({ x: (p.x - b.x) * pixels, y: (p.y - b.y) * pixels });
+  const shape = (type, attrs) => { const node = document.createElementNS('http://www.w3.org/2000/svg', type); for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value); selectionOverlay.append(node); };
+  const ordered = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([x, y]) => xy(localToWorld(layer, x * layer.w / 2, y * layer.h / 2)));
+  const frame = { stroke: '#8cf4f2', 'stroke-width': 1.5, fill: '#142b30' };
+  shape('polygon', { ...frame, fill: 'none', points: ordered.map(p => `${p.x},${p.y}`).join(' ') });
+  const handles = selectionHandles(layer), top = xy(localToWorld(layer, 0, -layer.h / 2)), rotation = xy(handles.rotation);
+  shape('line', { ...frame, x1: top.x, y1: top.y, x2: rotation.x, y2: rotation.y });
+  for (const h of [...handles.corners, ...handles.sides]) { const p = xy(h), side = h.sx && h.sy ? 8 : 6; shape('rect', { ...frame, x: p.x - side / 2, y: p.y - side / 2, width: side, height: side, 'data-handle': `${h.sx},${h.sy}` }); }
+  shape('circle', { ...frame, cx: rotation.x, cy: rotation.y, r: 5 });
+}
 function paintEditor() {
   const doc = activeDocument(); if (!doc) return;
   // The dark working background is a display preference, independent of exports.
   compose(canvas, doc, assets, { transparent: !$('show-base').checked || doc.transparent }); checker(context);
   if ($('show-guide').checked && maskGuides.get(part.id)) { context.save(); context.globalAlpha = Number($('guide-opacity').value) / 100; context.drawImage(guideOverlay(doc), 0, 0, 1024, 1024); context.restore(); }
-  const layer = activeLayer();
-  if (layer) {
-    const pixels = 1024 / Math.max(100, canvas.getBoundingClientRect().width); const handles = selectionHandles(layer);
-    context.save(); context.strokeStyle = '#8cf4f2'; context.fillStyle = '#142b30'; context.lineWidth = 1.5 * pixels;
-    const ordered = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([x, y]) => localToWorld(layer, x * layer.w / 2, y * layer.h / 2));
-    context.beginPath(); ordered.forEach((p, i) => i ? context.lineTo(p.x * 1024, p.y * 1024) : context.moveTo(p.x * 1024, p.y * 1024)); context.closePath(); context.stroke();
-    const top = localToWorld(layer, 0, -layer.h / 2); context.beginPath(); context.moveTo(top.x * 1024, top.y * 1024); context.lineTo(handles.rotation.x * 1024, handles.rotation.y * 1024); context.stroke();
-    for (const p of [...handles.corners, ...handles.sides]) { const side = (p.sx && p.sy ? 8 : 6) * pixels; context.fillRect(p.x * 1024 - side / 2, p.y * 1024 - side / 2, side, side); context.strokeRect(p.x * 1024 - side / 2, p.y * 1024 - side / 2, side, side); }
-    context.beginPath(); context.arc(handles.rotation.x * 1024, handles.rotation.y * 1024, 5 * pixels, 0, Math.PI * 2); context.fill(); context.stroke(); context.restore();
-  }
+  paintSelection(activeLayer());
   $('empty-hint').hidden = !!doc.layers.length;
 }
 function renderTexture(id = part?.id) {
@@ -112,7 +142,7 @@ function selectPart(id) {
   status(`${model.name} · ${part.name}${part.hasMesh ? ' · перетаскивайте слои на развёртке' : ' · в исходной папке есть маска, mesh отсутствует'}`);
 }
 function fitCanvas(nextZoom = zoom) {
-  zoom = clamp(nextZoom, .5, 4); const stage = $('uv-stage'); const base = Math.max(200, Math.min(stage.clientWidth - 46, stage.clientHeight - 46));
+  zoom = clamp(nextZoom, .05, 4); const stage = $('uv-stage'); const base = Math.max(100, Math.min(stage.clientWidth - 80, stage.clientHeight - 110));
   const pixels = Math.round(base * zoom); canvas.style.width = canvas.style.height = `${pixels}px`; $('zoom-fit').textContent = `${Math.round(zoom * 100)}%`; paintEditor();
 }
 async function maskGuide(blob) {
@@ -185,7 +215,7 @@ async function addImages(files) {
   finally { busy = false; updateButtons(); $('image-input').value = ''; }
 }
 function point(event, surface = canvas) { const r = surface.getBoundingClientRect(); return { x: (event.clientX - r.left) / r.width, y: (event.clientY - r.top) / r.height }; }
-canvas.addEventListener('pointerdown', event => {
+board.addEventListener('pointerdown', event => {
   if (event.button !== 0 || busy || !activeDocument()) return;
   const p = point(event); const doc = activeDocument(); let layer = activeLayer(); let action = 'move'; let handle;
   if (layer) {
@@ -195,11 +225,11 @@ canvas.addEventListener('pointerdown', event => {
   if (action === 'move') {
     layer = [...doc.layers].reverse().find(l => l.visible && hitLayer(l, p)); doc.selectedId = layer?.id || null;
   }
-  refresh(); if (!layer) return;
-  pointer = { action, layer, start: p, original: structuredClone(layer), handle };
-  canvas.setPointerCapture(event.pointerId); canvas.focus(); event.preventDefault();
+  if (!layer) { refresh(); return; }
+  pointer = { action, layer, start: p, original: structuredClone(layer), handle }; refresh();
+  board.setPointerCapture(event.pointerId); canvas.focus({ preventScroll: true }); event.preventDefault();
 });
-canvas.addEventListener('pointermove', event => {
+board.addEventListener('pointermove', event => {
   if (!pointer) {
     const layer = activeLayer(); const p = point(event); let cursor = 'default';
     if (layer) {
@@ -208,7 +238,7 @@ canvas.addEventListener('pointermove', event => {
       if (handle) { const angle = ((Math.atan2(handle.sy, handle.sx) * 180 / Math.PI + layer.angle) % 180 + 180) % 180; cursor = ['ew-resize', 'nwse-resize', 'ns-resize', 'nesw-resize', 'ew-resize'][Math.round(angle / 45)]; }
       else if (hit(h.rotation)) cursor = 'grab'; else if (activeDocument().layers.some(l => l.visible && hitLayer(l, p))) cursor = 'move';
     }
-    canvas.style.cursor = cursor; return;
+    canvas.style.cursor = board.style.cursor = cursor; return;
   }
   const p = point(event); const { original: old, layer, action, handle } = pointer;
   if (action === 'move') { layer.x = old.x + p.x - pointer.start.x; layer.y = old.y + p.y - pointer.start.y; }
@@ -217,7 +247,8 @@ canvas.addEventListener('pointermove', event => {
   schedulePaint();
 });
 function finishPointer() { if (!pointer) return; pointer = null; commit(); refresh(); }
-canvas.addEventListener('pointerup', finishPointer); canvas.addEventListener('pointercancel', finishPointer); canvas.addEventListener('lostpointercapture', finishPointer);
+board.addEventListener('pointerup', finishPointer); board.addEventListener('pointercancel', finishPointer); board.addEventListener('lostpointercapture', finishPointer);
+board.addEventListener('dblclick', event => { if (event.button === 0 && activeLayer() && hitLayer(activeLayer(), point(event))) $('crop-layer').click(); });
 
 function restoreHistory(value) { if (!value) return; workspace.parts = value; for (const id of textures.keys()) renderTexture(id); workspace.dirty = true; refresh(); }
 $('undo').addEventListener('click', () => restoreHistory(workspace.history.undo())); $('redo').addEventListener('click', () => restoreHistory(workspace.history.redo()));
@@ -243,11 +274,13 @@ for (const [id, key] of [['layer-x', 'x'], ['layer-y', 'y'], ['layer-angle', 'an
 });
 for (const [id, axis] of [['center-x', 'x'], ['center-y', 'y']]) $(id).addEventListener('click', () => { const layer = activeLayer(); if (!layer) return; layer[axis] = .5; commit(); refresh(); });
 $('reset-transform').addEventListener('click', () => { const layer = activeLayer(); if (!layer) return; const image = assets.get(layer.assetId).bitmap; const w = image.width * layer.crop.w, h = image.height * layer.crop.h; const fit = .64 / Math.max(w, h); Object.assign(layer, { x: .5, y: .5, w: w * fit, h: h * fit, angle: 0, flipX: false, flipY: false }); commit(); refresh(); });
+$('fit-layer').addEventListener('click', () => { const layer = activeLayer(); if (!layer) return; const a = layer.angle * Math.PI / 180, w = Math.abs(Math.cos(a)) * layer.w + Math.abs(Math.sin(a)) * layer.h, h = Math.abs(Math.sin(a)) * layer.w + Math.abs(Math.cos(a)) * layer.h; const scale = Math.min(1, .8 / Math.max(w, h)); layer.w *= scale; layer.h *= scale; layer.x = layer.y = .5; commit(); refresh(); fitCanvas(1); $('uv-stage').scrollTo(0, 0); });
 $('base-color').addEventListener('input', event => { activeDocument().color = event.target.value; schedulePaint(); }); $('base-color').addEventListener('change', () => { commit(); refresh(); });
 $('transparent-base').addEventListener('change', event => { activeDocument().transparent = event.target.checked; commit(); refresh(); });
 $('show-guide').addEventListener('change', paintEditor);
 $('guide-opacity').addEventListener('input', paintEditor);
 $('zoom-in').addEventListener('click', () => fitCanvas(zoom * 1.25)); $('zoom-out').addEventListener('click', () => fitCanvas(zoom / 1.25)); $('zoom-fit').addEventListener('click', () => { fitCanvas(1); $('uv-stage').scrollTo(0, 0); });
+$('zoom-layer').addEventListener('click', () => { const layer = activeLayer(); if (!layer) return; const stage = $('uv-stage'), b = layerBounds(layer), base = Math.max(100, Math.min(stage.clientWidth - 80, stage.clientHeight - 110)); fitCanvas(Math.min(1, (stage.clientWidth - 80) / ((b.maxX - b.minX) * base), (stage.clientHeight - 110) / ((b.maxY - b.minY) * base))); stage.scrollTo(0, 0); });
 $('uv-stage').addEventListener('wheel', event => { if (event.ctrlKey || event.metaKey) { event.preventDefault(); fitCanvas(zoom * (event.deltaY < 0 ? 1.12 : 1 / 1.12)); } }, { passive: false });
 new ResizeObserver(() => fitCanvas()).observe($('uv-stage'));
 $('camera-reset').addEventListener('click', () => viewer?.reset()); $('part-focus').addEventListener('click', () => viewer?.focus(part.id)); $('isolate-part').addEventListener('change', () => viewer?.select(part.id, $('isolate-part').checked));
@@ -260,7 +293,7 @@ $('uv-stage').addEventListener('dragleave', () => { if (--dragDepth <= 0) { drag
 $('uv-stage').addEventListener('drop', event => { event.preventDefault(); dragDepth = 0; $('uv-stage').classList.remove('drag-over'); addImages(event.dataTransfer.files); });
 window.addEventListener('dragover', event => event.preventDefault()); window.addEventListener('drop', event => event.preventDefault());
 document.addEventListener('keydown', event => {
-  if (busy || !workspace || $('crop-dialog').open || $('help-dialog').open || event.target.closest('input,textarea,select')) return;
+  if (busy || !workspace || document.querySelector('dialog[open]') || event.target.closest('input,textarea,select')) return;
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') { event.preventDefault(); restoreHistory(event.shiftKey ? workspace.history.redo() : workspace.history.undo()); return; }
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'y') { event.preventDefault(); restoreHistory(workspace.history.redo()); return; }
   const layer = activeLayer(); if (!layer) return;
@@ -269,6 +302,76 @@ document.addEventListener('keydown', event => {
 });
 window.addEventListener('beforeunload', event => { if ([...workspaces.values()].some(w => w.dirty)) { event.preventDefault(); event.returnValue = ''; } });
 $('help-button').addEventListener('click', () => $('help-dialog').showModal()); $('help-close').addEventListener('click', () => $('help-dialog').close());
+$('help-done').addEventListener('click', () => $('help-dialog').close());
+
+// Cutout uses a separate immutable source. Applying creates a new image asset,
+// so undo, duplicates, cropping and saved projects retain their own pixels.
+let backgroundState = null, backgroundVersion = 0, backgroundTimer;
+const backgroundCanvas = $('background-canvas'), backgroundContext = backgroundCanvas.getContext('2d');
+function backgroundFrame(image) {
+  const scale = Math.min(860 / image.width, 520 / image.height);
+  return { x: (900 - image.width * scale) / 2, y: (560 - image.height * scale) / 2, w: image.width * scale, h: image.height * scale };
+}
+function paintBackground() {
+  if (!backgroundState) return;
+  const s = backgroundState, f = backgroundFrame(s.image);
+  backgroundContext.clearRect(0, 0, 900, 560);
+  backgroundContext.drawImage(s.ready && !$('background-original').checked ? s.result : s.image, f.x, f.y, f.w, f.h);
+  if (s.seed) { const x = f.x + s.seed.x * f.w, y = f.y + s.seed.y * f.h; backgroundContext.save(); backgroundContext.strokeStyle = '#fff'; backgroundContext.lineWidth = 2; backgroundContext.beginPath(); backgroundContext.arc(x, y, 6, 0, Math.PI * 2); backgroundContext.stroke(); backgroundContext.restore(); }
+}
+function requestBackgroundPreview() {
+  clearTimeout(backgroundTimer); const version = ++backgroundVersion, s = backgroundState;
+  $('background-tolerance-value').textContent = `${$('background-tolerance').value}%`; $('background-softness-value').textContent = `${$('background-softness').value}%`;
+  if (!s) return; s.ready = false; $('background-apply').disabled = true;
+  if (!s.seed) { paintBackground(); return; }
+  $('background-status').textContent = 'Обрабатываем картинку…';
+  const options = { ...s.seed, tolerance: Number($('background-tolerance').value), softness: Number($('background-softness').value), all: $('background-mode').value === 'all' };
+  backgroundTimer = setTimeout(async () => {
+    try {
+      const result = await removeBackground(s.source, options, { cancelled: () => version !== backgroundVersion, progress: n => { if (version === backgroundVersion) $('background-status').textContent = `Обрабатываем картинку… ${n}%`; } });
+      if (version !== backgroundVersion) return;
+      s.result.width = result.width; s.result.height = result.height;
+      s.result.getContext('2d').putImageData(new ImageData(result.data, result.width, result.height), 0, 0); s.ready = true; s.removed = result.removed;
+      $('background-status').textContent = result.removed ? 'Предпросмотр готов. Проверьте края и примените удаление.' : 'Подходящий фон не найден. Выберите другую точку или увеличьте допуск.';
+      $('background-apply').disabled = !result.removed; paintBackground();
+    } catch (error) { if (version === backgroundVersion && error.name !== 'AbortError') { $('background-status').textContent = error.message; toast(error.message); } }
+  }, 120);
+}
+$('remove-background').addEventListener('click', () => {
+  const layer = activeLayer(); if (!layer || busy) return;
+  const image = assets.get(layer.assetId).bitmap, source = document.createElement('canvas'); source.width = image.width; source.height = image.height;
+  const c = source.getContext('2d', { willReadFrequently: true }); c.drawImage(image, 0, 0);
+  backgroundState = { layer, image, source: c.getImageData(0, 0, image.width, image.height), result: document.createElement('canvas'), seed: null, ready: false };
+  source.width = source.height = 1;
+  $('background-tolerance').value = 12; $('background-softness').value = 4; $('background-mode').value = 'connected'; $('background-original').checked = false;
+  $('background-status').textContent = 'Нажмите на фон картинки, чтобы выбрать цвет.'; $('background-colour').textContent = 'Выберите фон'; $('background-swatch').style.background = 'transparent';
+  $('background-dialog').showModal(); requestBackgroundPreview();
+});
+backgroundCanvas.addEventListener('pointerdown', event => {
+  if (event.button !== 0 || busy || !backgroundState) return;
+  const p = point(event, backgroundCanvas), s = backgroundState, f = backgroundFrame(s.image), x = (p.x * 900 - f.x) / f.w, y = (p.y * 560 - f.y) / f.h;
+  if (x < 0 || y < 0 || x >= 1 || y >= 1) return;
+  const i = (Math.floor(y * s.source.height) * s.source.width + Math.floor(x * s.source.width)) * 4;
+  if (!s.source.data[i + 3]) { toast('Нажмите на видимый фон картинки.'); return; }
+  const colour = `#${[...s.source.data.slice(i, i + 3)].map(v => v.toString(16).padStart(2, '0')).join('')}`;
+  $('background-colour').textContent = colour.toUpperCase(); $('background-swatch').style.background = colour; s.seed = { x, y }; requestBackgroundPreview();
+});
+for (const id of ['background-tolerance', 'background-softness', 'background-mode']) $(id).addEventListener('input', requestBackgroundPreview);
+$('background-original').addEventListener('change', paintBackground);
+$('background-reset').addEventListener('click', () => { if (!backgroundState || busy) return; backgroundState.seed = null; backgroundState.result.width = backgroundState.result.height = 1; $('background-colour').textContent = 'Выберите фон'; $('background-swatch').style.background = 'transparent'; $('background-status').textContent = 'Нажмите на фон картинки, чтобы выбрать цвет.'; requestBackgroundPreview(); });
+$('background-close').addEventListener('click', () => { if (!busy) $('background-dialog').close(); });
+$('background-dialog').addEventListener('cancel', event => { if (busy) event.preventDefault(); });
+$('background-dialog').addEventListener('close', () => { clearTimeout(backgroundTimer); backgroundVersion++; if (backgroundState) { backgroundState.result.width = backgroundState.result.height = 1; backgroundState.source = null; } backgroundState = null; });
+$('background-apply').addEventListener('click', async () => {
+  const s = backgroundState; if (!s?.ready || !s.removed || busy) return;
+  busy = true; updateButtons(); const controls = [...$('background-dialog').querySelectorAll('button,input,select')]; controls.forEach(node => node.disabled = true);
+  let asset;
+  try {
+    asset = await prepareAsset(await blobOf(s.result), assets.get(s.layer.assetId).name);
+    assets.set(asset.id, asset); s.layer.assetId = asset.id; commit(); refresh(); $('background-dialog').close(); toast('Фон удалён. Ctrl+Z вернёт исходную картинку.');
+  } catch (error) { if (asset && !assets.has(asset.id)) asset.bitmap.close(); toast(error.message); }
+  finally { busy = false; controls.forEach(node => node.disabled = false); updateButtons(); }
+});
 
 // Cropping works on the source picture. Source pixels outside the selected box
 // remain available for resetting the crop; the layer keeps its placement.
